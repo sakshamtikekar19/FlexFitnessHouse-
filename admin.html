@@ -55,6 +55,14 @@
     .modal-box h3{ margin: 0 0 20px; color: var(--cta); }
     .modal-box .modal-actions{ margin-top: 20px; display: flex; gap: 10px; }
     .toast{ position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--cta); color: #000; border-radius: 8px; font-weight: 500; z-index: 1001; display: none; }
+    .publish-notice{ background: rgba(201,162,39,.15); border: 1px solid rgba(201,162,39,.4); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: .9rem; color: var(--text); line-height: 1.5; }
+    .publish-notice strong{ color: var(--cta); }
+    .cloud-publish{ background: rgba(201,162,39,.08); border: 1px solid rgba(201,162,39,.35); border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+    .cloud-publish .cloud-title{ margin: 0 0 12px; font-size: 1.1rem; color: var(--cta); }
+    .cloud-publish .inline-row{ margin-bottom: 12px; }
+    .cloud-publish .inline-row label{ display: block; margin-bottom: 4px; font-size: .85rem; }
+    .cloud-publish .inline-row input{ max-width: 320px; }
+    .cloud-publish a{ color: var(--cta); }
     .toast.show{ display: block; animation: fadeIn .3s ease; }
     @keyframes fadeIn{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: translateY(0); } }
     .file-input-wrap{ margin-bottom: 16px; }
@@ -113,9 +121,9 @@
     <div class="admin-header">
       <h1>Flex Fitness House – Admin</h1>
       <div>
-        <button type="button" class="btn btn-outline" id="loadFileBtn">Load data.json</button>
+        <button type="button" class="btn btn-outline" id="loadFileBtn">Import from file</button>
         <input type="file" id="loadFile" accept=".json" style="display:none">
-        <button type="button" class="btn" id="exportBtn">Export data.json</button>
+        <button type="button" class="btn" id="exportBtn">Download data.json</button>
         <a href="index.html" class="btn btn-outline">View site</a>
         <button type="button" class="btn btn-outline" id="changePassBtn">Change password</button>
         <button type="button" class="btn btn-outline" id="logoutBtn">Log out</button>
@@ -123,13 +131,35 @@
     </div>
 
     <div class="tabs">
+      <button type="button" class="tab" data-tab="publish">Publish to web</button>
       <button type="button" class="tab active" data-tab="pricing">Pricing</button>
       <button type="button" class="tab" data-tab="trainers">Trainers</button>
     </div>
 
+    <div id="publishPanel" class="panel">
+      <div class="cloud-publish">
+        <h3 class="cloud-title">Publish to web (no file upload)</h3>
+        <p class="form-hint">Enter your JSONBin <strong>Bin ID</strong> and <strong>Access Key</strong> (from <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener">jsonbin.io/app/api-keys</a>). Click Save, then after editing pricing or trainers click <strong>Publish now</strong> to update the live site.</p>
+        <div class="form-row inline-row">
+          <label>Bin ID</label>
+          <input type="text" id="jsonbinId" placeholder="e.g. 6990ba6ad0ea881f40ba88da">
+        </div>
+        <div class="form-row inline-row">
+          <label>Access Key (saved in this browser only)</label>
+          <input type="password" id="jsonbinKey" placeholder="Your JSONBin master/access key">
+        </div>
+        <div class="modal-actions" style="margin-top:12px">
+          <button type="button" class="btn btn-sm" id="saveJsonbinConfig">Save</button>
+          <button type="button" class="btn" id="publishNowBtn">Publish now</button>
+        </div>
+        <p id="publishStatus" class="form-hint" style="margin-top:8px;display:none"></p>
+      </div>
+      <p style="color:var(--muted);margin-top:16px">Or use <strong>Download data.json</strong> (top right) and upload that file to your server.</p>
+    </div>
+
     <div id="pricingPanel" class="panel active">
       <p class="pricing-summary" id="pricingSummary">—</p>
-      <p style="color:var(--muted);margin-bottom:16px">Edit membership plans. After saving, click Export and upload the file to your server.</p>
+      <p style="color:var(--muted);margin-bottom:16px">Edit membership plans. After saving, click Download data.json and upload that file to your server.</p>
       <button type="button" class="btn btn-sm" id="addPlanBtn">+ Add plan</button>
       <div class="pricing-table-wrap">
         <table>
@@ -240,6 +270,7 @@
         setAuth();
         document.getElementById('loginWrap').style.display = 'none';
         document.getElementById('adminPanel').style.display = 'block';
+        loadJsonbinConfig();
         loadData();
       } else {
         err.textContent = 'Wrong password.';
@@ -279,9 +310,54 @@
       document.getElementById('passwordModal').classList.remove('open');
       showToast('Password updated. Use the new password next time you log in.');
     });
+    var JSONBIN_BIN = 'flexJsonbinBinId';
+    var JSONBIN_KEY = 'flexJsonbinKey';
+    function loadJsonbinConfig(){
+      try {
+        var id = localStorage.getItem(JSONBIN_BIN);
+        var key = localStorage.getItem(JSONBIN_KEY);
+        if (id) document.getElementById('jsonbinId').value = id;
+        if (key) document.getElementById('jsonbinKey').value = key;
+      } catch(e){}
+    }
+    document.getElementById('saveJsonbinConfig').addEventListener('click', function(){
+      var id = document.getElementById('jsonbinId').value.trim();
+      var key = document.getElementById('jsonbinKey').value.trim();
+      try {
+        if (id) localStorage.setItem(JSONBIN_BIN, id); else localStorage.removeItem(JSONBIN_BIN);
+        if (key) localStorage.setItem(JSONBIN_KEY, key); else localStorage.removeItem(JSONBIN_KEY);
+        showToast('Saved. You can now use Publish now.');
+      } catch(e){ showToast('Could not save.'); }
+    });
+    document.getElementById('publishNowBtn').addEventListener('click', function(){
+      var binId = (document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
+      var key = (document.getElementById('jsonbinKey').value || localStorage.getItem(JSONBIN_KEY) || '').trim();
+      if (!binId || !key) { showToast('Enter Bin ID and Access Key, then Save.'); return; }
+      var publishData = { pricing: [], trainers: data.trainers };
+      document.querySelectorAll('#pricingBody tr').forEach(function(tr){
+        var inps = tr.querySelectorAll('input[data-field]');
+        var row = {};
+        inps.forEach(function(inp){ row[inp.dataset.field] = inp.value.trim() || null; });
+        if (row.originalPrice === null || row.originalPrice === '') row.originalPrice = null;
+        publishData.pricing.push(row);
+      });
+      var statusEl = document.getElementById('publishStatus');
+      statusEl.style.display = 'block';
+      statusEl.textContent = 'Publishing…';
+      statusEl.style.color = 'var(--muted)';
+      fetch('https://api.jsonbin.io/v3/b/' + binId, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
+        body: JSON.stringify(publishData)
+      }).then(function(r){
+        if (r.ok) { statusEl.textContent = 'Published! Your site will show changes after refresh.'; statusEl.style.color = 'var(--cta)'; showToast('Published to web.'); }
+        else return r.json().then(function(e){ throw new Error(e.message || 'Publish failed'); });
+      }).catch(function(e){ statusEl.textContent = 'Error: ' + (e.message || 'Check Bin ID and Key'); statusEl.style.color = '#e74'; });
+    });
     if (checkAuth()){
       document.getElementById('loginWrap').style.display = 'none';
       document.getElementById('adminPanel').style.display = 'block';
+      loadJsonbinConfig();
       loadData();
     }
 
@@ -298,7 +374,7 @@
         data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
         renderPricing();
         renderTrainers();
-        showToast('Using default data. Load data.json if you have it.');
+        showToast('Using default data. Use Import from file if you have data.json.');
       });
     }
 
@@ -522,7 +598,7 @@
       a.download = 'data.json';
       a.click();
       URL.revokeObjectURL(a.href);
-      showToast('data.json downloaded. Upload it to your site to apply changes.');
+      showToast('File downloaded. Upload this data.json to your website (same folder as index.html) and refresh the site.');
     });
   })();
   </script>

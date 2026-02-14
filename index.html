@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Flex Fitness House Gym | Premium Fitness • Dombivli</title>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
   <style>
     :root{
       --bg:#0a0a0a;
@@ -756,7 +757,8 @@
 (function(){
   var container = document.getElementById('pricing-container');
   if (!container) return;
-  fetch('data.json').then(function(r){ return r.json(); }).then(function(data){
+  var dataUrl = (typeof FLEX_DATA_URL !== 'undefined' && FLEX_DATA_URL) ? (FLEX_DATA_URL + (FLEX_DATA_URL.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now()) : ('data.json?t=' + Date.now());
+  fetch(dataUrl).then(function(r){ return r.json(); }).then(function(data){
     var plans = data.pricing || [];
     container.innerHTML = plans.map(function(p){
       var priceHtml = p.originalPrice ? '<div class="price-wrap"><span class="price-original">' + p.originalPrice + '</span><div class="price">' + p.price + '</div></div>' : '<div class="price">' + p.price + '</div>';

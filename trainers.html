@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Our Trainers | Flex Fitness House Gym • Dombivli</title>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
   <style>
     :root{
       --bg:#0a0a0a;
@@ -207,7 +208,8 @@
     eliteEl.innerHTML = list.filter(function(t){ return t.section === 'elite'; }).map(card).join('');
     certifiedEl.innerHTML = list.filter(function(t){ return t.section === 'certified'; }).map(card).join('');
   }
-  fetch('data.json').then(function(r){ return r.json(); }).then(function(data){
+  var dataUrl = (typeof FLEX_DATA_URL !== 'undefined' && FLEX_DATA_URL) ? (FLEX_DATA_URL + (FLEX_DATA_URL.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now()) : ('data.json?t=' + Date.now());
+  fetch(dataUrl).then(function(r){ return r.json(); }).then(function(data){
     render(data.trainers || fallbackTrainers);
   }).catch(function(){ render(fallbackTrainers); });
 })();
