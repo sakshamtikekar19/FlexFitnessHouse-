@@ -174,7 +174,7 @@
 
     <div id="trainersPanel" class="panel">
       <p class="pricing-summary" id="trainersSummary">—</p>
-      <p style="color:var(--muted);margin-bottom:16px">Edit trainers (Elite / Certified). Use <code>&lt;span class="hl"&gt;text&lt;/span&gt;</code> in bio for gold highlights.</p>
+      <p style="color:var(--muted);margin-bottom:16px">Edit trainers (Elite / Certified). In the bio, use <strong>**double asterisks**</strong> around text to show it in gold (e.g. <strong>**14 years**</strong> of experience).</p>
       <button type="button" class="btn btn-sm" id="addTrainerBtn">+ Add trainer</button>
       <div id="trainersList" class="card-list"></div>
     </div>
@@ -202,7 +202,7 @@
       <div class="form-row"><label>Section</label><select id="trainerSection"><option value="elite">Elite Trainers</option><option value="certified">Certified Trainers</option></select></div>
       <div class="form-row"><label>Full name</label><input type="text" id="trainerName" placeholder="Trainer name"></div>
       <div class="form-row"><label>Role / credentials (one line)</label><input type="text" id="trainerRole" placeholder="e.g. CPR Certified • Certified Personal Trainer (IFSA)"></div>
-      <div class="form-row"><label>Bio (HTML allowed: &lt;span class="hl"&gt;highlight&lt;/span&gt;)</label><textarea id="trainerBio" placeholder="Short bio..."></textarea></div>
+      <div class="form-row"><label>Bio (use **double asterisks** for gold highlight, e.g. **14 years** of experience)</label><textarea id="trainerBio" placeholder="e.g. **14 years** of experience. Certified in..."></textarea></div>
       <div class="form-row"><label>Image path (e.g. ./images/name.jpg or leave blank)</label><input type="text" id="trainerImage" placeholder="./images/filename.jpg"></div>
       <div class="form-row upload-row">
         <label>Upload from device (camera or gallery)</label>
@@ -543,7 +543,7 @@
       document.getElementById('trainerSection').value = t.section || 'certified';
       document.getElementById('trainerName').value = t.name || '';
       document.getElementById('trainerRole').value = t.role || '';
-      document.getElementById('trainerBio').value = t.bio || '';
+      document.getElementById('trainerBio').value = (t.bio || '').replace(/<span class="hl">(.*?)<\/span>/gi, '**$1**');
       document.getElementById('trainerImage').value = t.image || '';
       document.getElementById('trainerImageUpload').value = '';
       showTrainerPreview(t.image || '');
@@ -587,7 +587,7 @@
       t.section = document.getElementById('trainerSection').value;
       t.name = document.getElementById('trainerName').value.trim();
       t.role = document.getElementById('trainerRole').value.trim();
-      t.bio = document.getElementById('trainerBio').value.trim();
+      t.bio = document.getElementById('trainerBio').value.trim().replace(/\*\*([^*]+)\*\*/g, '<span class="hl">$1</span>');
       var img = document.getElementById('trainerImage').value.trim();
       t.image = img || null;
       t.photoClass = t.photoClass || null;
