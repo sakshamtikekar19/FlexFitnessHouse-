@@ -210,7 +210,8 @@
   }
   var dataUrl = (typeof FLEX_DATA_URL !== 'undefined' && FLEX_DATA_URL) ? (FLEX_DATA_URL + (FLEX_DATA_URL.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now()) : ('data.json?t=' + Date.now());
   fetch(dataUrl).then(function(r){ return r.json(); }).then(function(data){
-    render(data.trainers || fallbackTrainers);
+    var d = data.record || data;
+    render(d && d.trainers || fallbackTrainers);
   }).catch(function(){ render(fallbackTrainers); });
 })();
 </script>

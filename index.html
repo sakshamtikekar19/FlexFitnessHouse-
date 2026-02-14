@@ -757,14 +757,23 @@
 (function(){
   var container = document.getElementById('pricing-container');
   if (!container) return;
+  var fallbackPlans = [
+    { name: '3 Months', price: '₹6,000', originalPrice: null, tagline: 'Unlimited access' },
+    { name: '6 Months', price: '₹10,000', originalPrice: null, tagline: 'Best for consistency' },
+    { name: '1 Year', price: '₹14,000', originalPrice: '₹16,000', tagline: 'Maximum savings' }
+  ];
+  function render(plans){
+    if (!plans || !plans.length) plans = fallbackPlans;
+    container.innerHTML = plans.map(function(p){
+      var priceHtml = p.originalPrice ? '<div class="price-wrap"><span class="price-original">' + (p.originalPrice || '') + '</span><div class="price">' + (p.price || '') + '</div></div>' : '<div class="price">' + (p.price || '') + '</div>';
+      return '<a class="plan-link" href="#" data-plan="' + (p.name || '').replace(/"/g,'&quot;') + '" data-price="' + (p.price || '').replace(/"/g,'&quot;') + '"><div class="plan"><h3>' + (p.name || '') + '</h3>' + priceHtml + '<p>' + (p.tagline || '') + '</p></div></a>';
+    }).join('');
+  }
   var dataUrl = (typeof FLEX_DATA_URL !== 'undefined' && FLEX_DATA_URL) ? (FLEX_DATA_URL + (FLEX_DATA_URL.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now()) : ('data.json?t=' + Date.now());
   fetch(dataUrl).then(function(r){ return r.json(); }).then(function(data){
-    var plans = data.pricing || [];
-    container.innerHTML = plans.map(function(p){
-      var priceHtml = p.originalPrice ? '<div class="price-wrap"><span class="price-original">' + p.originalPrice + '</span><div class="price">' + p.price + '</div></div>' : '<div class="price">' + p.price + '</div>';
-      return '<a class="plan-link" href="#" data-plan="' + p.name.replace(/"/g,'&quot;') + '" data-price="' + p.price.replace(/"/g,'&quot;') + '"><div class="plan"><h3>' + p.name + '</h3>' + priceHtml + '<p>' + (p.tagline || '') + '</p></div></a>';
-    }).join('');
-  }).catch(function(){ container.innerHTML = '<p style="color:var(--muted)">Plans load from data. Run from a server or check data.json.</p>'; });
+    var d = data.record || data;
+    render(d && d.pricing);
+  }).catch(function(){ render(fallbackPlans); });
 })();
 </script>
 

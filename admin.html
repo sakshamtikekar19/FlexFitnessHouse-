@@ -139,7 +139,7 @@
     <div id="publishPanel" class="panel">
       <div class="cloud-publish">
         <h3 class="cloud-title">Publish to web (no file upload)</h3>
-        <p class="form-hint">Enter your JSONBin <strong>Bin ID</strong> and <strong>Access Key</strong> (from <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener">jsonbin.io/app/api-keys</a>). Click Save, then after editing pricing or trainers click <strong>Publish now</strong> to update the live site.</p>
+        <p class="form-hint">6990ba6ad0ea881f40ba88da <strong>Bin ID</strong> and <strong>Access Key</strong> (from <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener">jsonbin.io/app/api-keys</a>). Click Save, then after editing pricing or trainers click <strong>Publish now</strong> to update the live site.</p>
         <div class="form-row inline-row">
           <label>Bin ID</label>
           <input type="text" id="jsonbinId" placeholder="e.g. 6990ba6ad0ea881f40ba88da">
@@ -151,7 +151,9 @@
         <div class="modal-actions" style="margin-top:12px">
           <button type="button" class="btn btn-sm" id="saveJsonbinConfig">Save</button>
           <button type="button" class="btn" id="publishNowBtn">Publish now</button>
+          <button type="button" class="btn btn-outline btn-sm" id="makeBinPublicBtn">Make bin public</button>
         </div>
+        <p class="form-hint" style="margin-top:8px">If your site does not show plans/trainers, your bin may be private. Click <strong>Make bin public</strong> (uses your saved Bin ID and Key).</p>
         <p id="publishStatus" class="form-hint" style="margin-top:8px;display:none"></p>
       </div>
       <p style="color:var(--muted);margin-top:16px">Or use <strong>Download data.json</strong> (top right) and upload that file to your server.</p>
@@ -347,11 +349,27 @@
       statusEl.style.color = 'var(--muted)';
       fetch('https://api.jsonbin.io/v3/b/' + binId, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'X-Master-Key': key },
+        headers: { 'Content-Type': 'application/json', 'X-Master-Key': key, 'X-Bin-Versioning': 'true' },
         body: JSON.stringify(publishData)
       }).then(function(r){
         if (r.ok) { statusEl.textContent = 'Published! Your site will show changes after refresh.'; statusEl.style.color = 'var(--cta)'; showToast('Published to web.'); }
         else return r.json().then(function(e){ throw new Error(e.message || 'Publish failed'); });
+      }).catch(function(e){ statusEl.textContent = 'Error: ' + (e.message || 'Check Bin ID and Key'); statusEl.style.color = '#e74'; });
+    });
+    document.getElementById('makeBinPublicBtn').addEventListener('click', function(){
+      var binId = (document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
+      var key = (document.getElementById('jsonbinKey').value || localStorage.getItem(JSONBIN_KEY) || '').trim();
+      if (!binId || !key) { showToast('Enter Bin ID and Access Key, then Save.'); return; }
+      var statusEl = document.getElementById('publishStatus');
+      statusEl.style.display = 'block';
+      statusEl.textContent = 'Making bin public…';
+      statusEl.style.color = 'var(--muted)';
+      fetch('https://api.jsonbin.io/v3/b/' + binId + '/meta/privacy', {
+        method: 'PUT',
+        headers: { 'X-Master-Key': key, 'X-Bin-Private': 'false' }
+      }).then(function(r){
+        if (r.ok) { statusEl.textContent = 'Bin is now public. Your site can load plans and trainers.'; statusEl.style.color = 'var(--cta)'; showToast('Bin is now public.'); }
+        else return r.json().then(function(e){ throw new Error(e.message || 'Failed'); });
       }).catch(function(e){ statusEl.textContent = 'Error: ' + (e.message || 'Check Bin ID and Key'); statusEl.style.color = '#e74'; });
     });
     if (checkAuth()){
