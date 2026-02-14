@@ -19,7 +19,7 @@
     }
 
     *{margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden}
     body{
       font-family:'Montserrat',sans-serif;
       background:var(--bg);
@@ -27,6 +27,7 @@
       line-height:1.6;
       overflow-x:hidden;
       -webkit-overflow-scrolling:touch;
+      max-width:100vw;
       cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='8' cy='16' r='5' fill='%23d90429' stroke='%23fff' stroke-width='1.5'/%3E%3Ccircle cx='24' cy='16' r='5' fill='%23d90429' stroke='%23fff' stroke-width='1.5'/%3E%3Crect x='11' y='14' width='10' height='4' rx='1' fill='%23ff1e1e' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E") 16 16, auto;
     }
     a, button, [role="button"]{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='8' cy='16' r='5' fill='%23d90429' stroke='%23fff' stroke-width='1.5'/%3E%3Ccircle cx='24' cy='16' r='5' fill='%23d90429' stroke='%23fff' stroke-width='1.5'/%3E%3Crect x='11' y='14' width='10' height='4' rx='1' fill='%23ff1e1e' stroke='%23fff' stroke-width='1'/%3E%3C/svg%3E") 16 16, pointer;
@@ -35,7 +36,9 @@
     /* NAVBAR */
     nav{
       position:fixed;
-      top:0;left:0;width:100%;
+      top:0;left:0;
+      width:100%;
+      max-width:100vw;
       background:rgba(0,0,0,.85);
       backdrop-filter:blur(10px);
       -webkit-backdrop-filter:blur(10px);
@@ -47,6 +50,8 @@
       padding-top:max(12px,env(safe-area-inset-top));
       min-height:95px;
       border-bottom:1px solid rgba(255,255,255,.05);
+      overflow-x:hidden;
+      box-sizing:border-box;
     }
     nav h2{
       font-family:'Oswald',sans-serif;
@@ -84,6 +89,70 @@
     }
     nav a:hover{color:var(--cta)}
     nav a:hover::after{width:100%}
+    .nav-links{display:flex;align-items:center}
+    .hamburger-btn{
+      display:none;
+      flex-direction:column;
+      justify-content:center;
+      gap:6px;
+      width:44px;
+      height:44px;
+      padding:8px;
+      background:transparent;
+      border:none;
+      cursor:pointer;
+      z-index:1002;
+    }
+    .hamburger-btn span{
+      display:block;
+      width:24px;
+      height:2px;
+      background:var(--cta);
+      transition:transform .3s ease, opacity .3s ease;
+    }
+    .hamburger-btn.open span:nth-child(1){transform:translateY(8px) rotate(45deg)}
+    .hamburger-btn.open span:nth-child(2){opacity:0}
+    .hamburger-btn.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+    .nav-menu{
+      position:fixed;
+      top:0;
+      right:0;
+      width:280px;
+      max-width:85vw;
+      height:100vh;
+      background:rgba(10,10,10,.98);
+      border-left:1px solid rgba(255,255,255,.08);
+      padding:100px 24px 24px;
+      z-index:1001;
+      transform:translateX(100%);
+      transition:transform .3s ease;
+      overflow-y:auto;
+    }
+    .nav-menu.open{transform:translateX(0)}
+    .nav-menu a{
+      display:block;
+      margin:0 0 8px 0;
+      padding:14px 0;
+      font-size:1.1rem;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      color:var(--cta);
+      transition:color .3s ease;
+    }
+    .nav-menu a:hover{color:var(--cta2)}
+    .nav-menu a::after{display:none}
+    .nav-menu a:last-child{border-bottom:none}
+    .nav-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.5);
+      z-index:999;
+      opacity:0;
+      visibility:hidden;
+      transition:opacity .3s ease, visibility .3s ease;
+    }
+    .nav-overlay.open{opacity:1;visibility:visible}
+    .hamburger-btn{display:flex}
+    .nav-links{display:none}
 
     /* HERO */
     .hero-wrap{
@@ -92,13 +161,20 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:0 10%;
+      padding:95px 10% 24px;
       overflow:hidden;
+      box-sizing:border-box;
+      max-width:100vw;
     }
     .hero-bg{
       position:absolute;
-      inset:0;
-      background:#0a0a0a url('WhatsApp%20Image%202026-01-31%20at%2012.57.58%20AM.jpeg') center/cover no-repeat;
+      top:95px;
+      left:0;
+      right:0;
+      bottom:0;
+      background:#0a0a0a url('hero-flex-sign.png') no-repeat;
+      background-size:cover;
+      background-position:50% 0;
     }
     .hero-bg video{
       position:absolute;
@@ -110,11 +186,14 @@
     .hero-bg .overlay{
       position:absolute;
       inset:0;
-      background:linear-gradient(180deg,rgba(0,0,0,.75) 0%,rgba(0,0,0,.92) 100%);
+      background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.55) 50%,rgba(0,0,0,.72) 100%);
     }
     .hero-logo-bg{
       position:absolute;
-      inset:0;
+      top:95px;
+      left:0;
+      right:0;
+      bottom:0;
       z-index:1;
       display:flex;
       align-items:center;
@@ -132,7 +211,7 @@
     .hero-logo-left,
     .hero-logo-right{
       position:absolute;
-      top:0;
+      top:95px;
       bottom:0;
       z-index:1;
       display:flex;
@@ -155,6 +234,7 @@
       text-align:center;
       max-width:720px;
       animation:fadeUp 1.2s ease;
+      margin-top:140px;
     }
     .hero h1{
       font-family:'Oswald',sans-serif;
@@ -198,10 +278,33 @@
       display:inline-flex;
       align-items:center;
       justify-content:center;
+      transition:opacity .3s ease, visibility .3s ease;
     }
     .join-float:hover{transform:translateX(-50%) translateY(-3px)}
+    .join-float.hide-at-footer{opacity:0;visibility:hidden;pointer-events:none}
 
-    section{padding:100px 10%}
+    .whatsapp-float{
+      position:fixed;
+      bottom:28px;
+      right:20px;
+      z-index:999;
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      background:#25D366;
+      color:#fff;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 4px 20px rgba(37,211,102,.45);
+      transition:transform .3s ease, opacity .3s ease, visibility .3s ease, box-shadow .3s ease;
+      text-decoration:none;
+    }
+    .whatsapp-float:hover{transform:scale(1.08);box-shadow:0 6px 24px rgba(37,211,102,.5);color:#fff}
+    .whatsapp-float svg{width:32px;height:32px;fill:currentColor}
+    .whatsapp-float.hide-at-footer{opacity:0;visibility:hidden;pointer-events:none}
+
+    section{padding:100px 10%;max-width:100%;overflow-x:hidden;min-width:0}
     section .title{opacity:0;animation:fadeInUp .8s ease forwards}
     section .about{opacity:0;animation:fadeInUp .8s .15s ease forwards}
     section .features{opacity:0;animation:fadeInUp .8s .2s ease forwards}
@@ -249,7 +352,16 @@
     .pricing{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-      gap:35px
+      gap:35px;
+      align-items:stretch;
+    }
+    @media(min-width:901px){
+      .pricing{grid-template-columns:repeat(3,1fr)}
+      .plan-link{display:flex;height:100%}
+      .plan-link .plan{flex:1;display:flex;flex-direction:column;min-height:0}
+      .plan-link .plan .price,.plan-link .plan .price-wrap{height:4rem;margin:20px 0;display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:8px}
+      .plan-link .plan .price-wrap .price{margin:0}
+      .plan-link .plan .price-wrap .price-original{font-size:1.25rem}
     }
     .plan{
       background:linear-gradient(180deg,#141414,#0c0c0c);
@@ -264,6 +376,9 @@
     .plan-link:hover .plan{transform:translateY(-6px);border-color:rgba(201,162,39,.5);box-shadow:0 15px 40px rgba(0,0,0,.3)}
     .plan h3{font-family:'Oswald',sans-serif}
     .price{font-size:3rem;color:var(--cta);margin:20px 0}
+    .price-wrap{display:flex;flex-wrap:nowrap;align-items:baseline;gap:10px;margin:20px 0}
+    .price-original{font-size:1.5rem;color:var(--muted);text-decoration:line-through}
+    .price-wrap .price{margin:0}
 
     /* CTA */
     .cta{
@@ -292,6 +407,16 @@
       padding:50px 10%;
       color:var(--muted)
     }
+    footer .social{display:flex;justify-content:center;gap:16px;margin-bottom:20px}
+    footer .social a{
+      color:var(--muted);
+      transition:color .3s ease, transform .3s ease;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    footer .social a:hover{color:var(--cta);transform:scale(1.1)}
+    footer .social svg{width:24px;height:24px;fill:currentColor}
 
     @keyframes fadeUp{
       from{opacity:0;transform:translateY(40px)}
@@ -333,6 +458,7 @@
       border:1px solid rgba(255,255,255,.08);
       aspect-ratio:16/10;
       min-height:280px;
+      max-width:100%;
     }
     .map-wrap iframe{width:100%;height:100%;border:0;display:block}
 
@@ -345,6 +471,7 @@
     /* Tablet */
     @media(max-width:900px){
       .about{grid-template-columns:1fr}
+      .hero{margin-top:44px}
       .hero h1{font-size:3rem}
       nav a{margin-left:16px}
       section{padding:70px 8%}
@@ -359,15 +486,21 @@
       nav h2 img{height:60px;min-height:60px;max-width:160px}
       nav .logo-text{font-size:1.25rem}
       nav a{margin-left:12px;font-size:.85rem}
-      .hero-wrap{padding:0 6%;min-height:100vh;min-height:100dvh}
-      .hero h1{font-size:2.2rem;letter-spacing:2px}
-      .hero .tagline{font-size:.95rem}
+      .hero-wrap{padding:88px 5% 32px;min-height:auto}
+      .hero-bg{top:88px;bottom:0;background-position:center top;background-size:contain;background-repeat:no-repeat}
+      .hero-logo-bg,.hero-logo-left,.hero-logo-right{top:88px;bottom:0}
+      .hero{margin-top:84px}
+      .hero h1{font-size:2.2rem;letter-spacing:2px;margin-bottom:20px}
+      .hero .tagline{font-size:.9rem;margin-bottom:24px}
       .hero-logo-left img,.hero-logo-right img{width:min(22vw,160px)}
       section{padding:50px 6%}
+      section#about{padding-top:16px}
       .title{font-size:1.9rem;margin-bottom:28px}
       .cta{padding:50px 6%}
       .cta .title{font-size:1.65rem}
       .join-float{bottom:max(16px,env(safe-area-inset-bottom));padding:12px 28px;font-size:.95rem}
+      .whatsapp-float{bottom:max(16px,env(safe-area-inset-bottom));right:16px;width:52px;height:52px}
+      .whatsapp-float svg{width:28px;height:28px}
       .pricing{grid-template-columns:1fr;gap:20px}
       .plan{padding:32px 24px}
       .price{font-size:2.4rem}
@@ -381,15 +514,18 @@
 
     /* Small mobile */
     @media(max-width:600px){
-      nav{justify-content:center;text-align:center}
+      nav{justify-content:space-between;align-items:center}
       nav a{margin-left:10px;margin-right:2px;font-size:.82rem}
       .btn{padding:12px 28px;min-height:44px}
       .cta-btns{flex-direction:column;align-items:center}
       .cta-btns .btn{width:100%;max-width:260px;text-align:center}
       .gallery{grid-template-columns:1fr;gap:16px}
-      .gallery img{height:220px}
+      .gallery img{height:220px;max-width:100%}
       .features{grid-template-columns:1fr;gap:20px}
       .feature{padding:24px 20px}
+      .hero{margin-top:72px}
+      .hero h1{font-size:2rem}
+      .about img,.gallery img{max-width:100%;height:auto}
       .membership-modal{padding:12px}
       .membership-modal-box{padding:24px 20px;margin:12px}
       .membership-modal-box .modal-btns{flex-direction:column}
@@ -399,9 +535,17 @@
     /* Extra small (e.g. 320px–400px) */
     @media(max-width:400px){
       nav a{margin-left:6px;margin-right:0;font-size:.78rem}
-      .hero h1{font-size:1.9rem}
-      .title{font-size:1.7rem}
+      .hero-wrap{padding:82px 4% 28px;min-height:auto}
+      .hero-bg,.hero-logo-bg,.hero-logo-left,.hero-logo-right{top:82px;bottom:0}
+      .hero-bg{background-size:contain;background-position:center top}
+      .hero{margin-top:60px}
+      .hero h1{font-size:1.75rem;letter-spacing:1px}
+      .hero .tagline{font-size:.85rem}
+      .title{font-size:1.6rem}
       .join-float{padding:10px 20px;font-size:.9rem;min-width:120px}
+      section{padding:40px 5%}
+      section#about{padding-top:12px}
+      .contact-info p,.membership-modal-box input{font-size:.95rem}
     }
 
     /* Mobile logo splash – center logo when page opens (mobile only) */
@@ -530,18 +674,34 @@
   <span class="logo-fallback" style="display:none">FLEX FITNESS HOUSE</span>
 </div>
 
+<div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
 <nav>
   <h2><img src="logo.png" alt="Flex Fitness House" onerror="this.style.display='none';this.nextElementSibling.style.display='inline'"><span class="logo-text" style="display:none">Flex Fitness House</span></h2>
-  <div>
+  <div class="nav-links">
     <a href="#about">About</a>
     <a href="#features">Facilities</a>
     <a href="#pricing">Plans</a>
     <a href="#join">Join</a>
     <a href="#contact">Contact</a>
+    <a href="trainers.html">Trainers</a>
+    <a href="testimonials.html">Reviews</a>
   </div>
+  <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="nav-menu" id="navMenu">
+  <a href="#about">About</a>
+  <a href="#features">Facilities</a>
+  <a href="#pricing">Plans</a>
+  <a href="#join">Join</a>
+  <a href="#contact">Contact</a>
+  <a href="trainers.html">Trainers</a>
+  <a href="testimonials.html">Reviews</a>
+</div>
 
 <a href="#join" class="btn join-float">Join Now</a>
+<a href="https://wa.me/918976249444?text=Hi%2C%20I%20would%20like%20to%20enquire%20about%20Flex%20Fitness%20House%20gym%20membership." class="whatsapp-float" id="whatsappFloat" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> </a>
 
 <header>
   <div class="hero-wrap">
@@ -590,12 +750,21 @@
 
 <section id="pricing">
   <h2 class="title">Membership Plans</h2>
-  <div class="pricing">
-    <a class="plan-link" href="#" data-plan="3 Months" data-price="₹6,000"><div class="plan"><h3>3 Months</h3><div class="price">₹6,000</div><p>Unlimited access</p></div></a>
-    <a class="plan-link" href="#" data-plan="6 Months" data-price="₹10,000"><div class="plan"><h3>6 Months</h3><div class="price">₹10,000</div><p>Best for consistency</p></div></a>
-    <a class="plan-link" href="#" data-plan="1 Year" data-price="₹14,000"><div class="plan"><h3>1 Year</h3><div class="price">₹14,000</div><p>Maximum savings</p></div></a>
-  </div>
+  <div class="pricing" id="pricing-container"><!-- loaded from data.json --></div>
 </section>
+<script>
+(function(){
+  var container = document.getElementById('pricing-container');
+  if (!container) return;
+  fetch('data.json').then(function(r){ return r.json(); }).then(function(data){
+    var plans = data.pricing || [];
+    container.innerHTML = plans.map(function(p){
+      var priceHtml = p.originalPrice ? '<div class="price-wrap"><span class="price-original">' + p.originalPrice + '</span><div class="price">' + p.price + '</div></div>' : '<div class="price">' + p.price + '</div>';
+      return '<a class="plan-link" href="#" data-plan="' + p.name.replace(/"/g,'&quot;') + '" data-price="' + p.price.replace(/"/g,'&quot;') + '"><div class="plan"><h3>' + p.name + '</h3>' + priceHtml + '<p>' + (p.tagline || '') + '</p></div></a>';
+    }).join('');
+  }).catch(function(){ container.innerHTML = '<p style="color:var(--muted)">Plans load from data. Run from a server or check data.json.</p>'; });
+})();
+</script>
 
 <div class="membership-modal" id="membershipModal" aria-hidden="true">
   <div class="membership-modal-box">
@@ -660,6 +829,8 @@
       <p><a href="tel:+919004178991">9004178991</a></p>
       <p><strong>Email</strong></p>
       <p><a href="mailto:flexthefitnesshouse@gmail.com">flexthefitnesshouse@gmail.com</a></p>
+      <p><strong>Instagram</strong></p>
+      <p><a href="https://www.instagram.com/flexthefitnesshouse?igsh=cWFjdWpjZXEzOGF6" target="_blank" rel="noopener noreferrer">@flexthefitnesshouse</a></p>
       <p><a class="btn btn-dark" href="https://www.google.com/maps/search/?api=1&query=Gnp+Arcadia,+Opp+Pendharkar+College,+Dombivli+East+421203" target="_blank" rel="noopener" style="margin-top:12px">Open in Google Maps</a></p>
     </div>
     <div class="map-wrap">
@@ -681,6 +852,10 @@
 </section>
 
 <footer>
+  <div class="social">
+    <a href="https://www.instagram.com/flexthefitnesshouse?igsh=cWFjdWpjZXEzOGF6" target="_blank" rel="noopener noreferrer" aria-label="Instagram"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> </a>
+    <a href="https://wa.me/918976249444?text=Hi%2C%20I%20would%20like%20to%20enquire%20about%20Flex%20Fitness%20House%20gym%20membership." target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"> <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> </a>
+  </div>
   <h3>Flex Fitness House Gym</h3>
   <p>Dombivli • Premium Fitness Destination</p>
   <p>Operating since 2022</p>
@@ -689,14 +864,68 @@
 
 <script>
 (function(){
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navMenu = document.getElementById('navMenu');
+  var navOverlay = document.getElementById('navOverlay');
+  function openMenu(){
+    hamburgerBtn.classList.add('open');
+    hamburgerBtn.setAttribute('aria-label', 'Close menu');
+    hamburgerBtn.setAttribute('aria-expanded', 'true');
+    navMenu.classList.add('open');
+    navOverlay.classList.add('open');
+    navOverlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu(){
+    hamburgerBtn.classList.remove('open');
+    hamburgerBtn.setAttribute('aria-label', 'Open menu');
+    hamburgerBtn.setAttribute('aria-expanded', 'false');
+    navMenu.classList.remove('open');
+    navOverlay.classList.remove('open');
+    navOverlay.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  hamburgerBtn.addEventListener('click', function(){
+    if (navMenu.classList.contains('open')) closeMenu();
+    else openMenu();
+  });
+  navOverlay.addEventListener('click', closeMenu);
+  navMenu.querySelectorAll('a').forEach(function(link){
+    link.addEventListener('click', closeMenu);
+  });
+})();
+</script>
+<script>
+(function(){
+  var joinFloat = document.querySelector('.join-float');
+  var whatsappFloat = document.getElementById('whatsappFloat');
+  var footer = document.querySelector('footer');
+  if (!footer) return;
+  function setHideAtFooter(hide){
+    if (joinFloat) joinFloat.classList.toggle('hide-at-footer', hide);
+    if (whatsappFloat) whatsappFloat.classList.toggle('hide-at-footer', hide);
+  }
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      setHideAtFooter(entry.isIntersecting);
+    });
+  }, { rootMargin: '-20px 0px 0px 0px', threshold: 0 });
+  observer.observe(footer);
+})();
+</script>
+<script>
+(function(){
   var modal = document.getElementById('membershipModal');
   var modalPlanName = document.getElementById('modalPlanName');
   var form = document.getElementById('membershipForm');
   var mPlan = document.getElementById('mPlan');
   var mPrice = document.getElementById('mPrice');
 
-  document.querySelectorAll('.plan-link').forEach(function(link){
-    link.addEventListener('click', function(e){
+  var pricingContainer = document.getElementById('pricing-container');
+  if (pricingContainer) {
+    pricingContainer.addEventListener('click', function(e){
+      var link = e.target.closest('.plan-link');
+      if (!link) return;
       e.preventDefault();
       var plan = link.getAttribute('data-plan');
       var price = link.getAttribute('data-price');
@@ -706,7 +935,7 @@
       modal.classList.add('open');
       modal.setAttribute('aria-hidden', 'false');
     });
-  });
+  }
 
   function closeModal(){
     modal.classList.remove('open');

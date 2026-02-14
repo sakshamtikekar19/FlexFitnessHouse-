@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Our Trainers | Flex Fitness House Gym • Dombivli</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0a0a;
+      --bg2:#111;
+      --card:#161616;
+      --accent:#d90429;
+      --cta:#c9a227;
+      --cta2:#e5c158;
+      --text:#f5f5f5;
+      --muted:#b0b0b0;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden}
+    body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;max-width:100vw}
+    nav{
+      position:fixed;top:0;left:0;width:100%;
+      background:rgba(0,0,0,.85);backdrop-filter:blur(10px);
+      z-index:1000;display:flex;justify-content:space-between;align-items:center;
+      padding:12px 8%;padding-top:max(12px,env(safe-area-inset-top));min-height:95px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    nav h2{font-family:'Oswald',sans-serif;display:flex;align-items:center}
+    nav h2 a{text-decoration:none;color:inherit}
+    nav h2 img{height:75px;width:auto;max-width:240px;min-height:75px;object-fit:contain}
+    nav a{color:var(--text);margin-left:28px;text-decoration:none;font-size:.95rem;transition:color .3s}
+    nav a:hover{color:var(--cta)}
+    .nav-links{display:flex;align-items:center}
+    .hamburger-btn{display:none;flex-direction:column;justify-content:center;gap:6px;width:44px;height:44px;padding:8px;background:transparent;border:none;cursor:pointer;z-index:1002}
+    .hamburger-btn span{display:block;width:24px;height:2px;background:var(--cta);transition:transform .3s ease, opacity .3s ease}
+    .hamburger-btn.open span:nth-child(1){transform:translateY(8px) rotate(45deg)}
+    .hamburger-btn.open span:nth-child(2){opacity:0}
+    .hamburger-btn.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+    .nav-menu{position:fixed;top:0;right:0;width:280px;max-width:85vw;height:100vh;background:rgba(10,10,10,.98);border-left:1px solid rgba(255,255,255,.08);padding:100px 24px 24px;z-index:1001;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto}
+    .nav-menu.open{transform:translateX(0)}
+    .nav-menu a{display:block;margin:0 0 8px 0;padding:14px 0;font-size:1.1rem;color:var(--cta);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-menu a:hover{color:var(--cta2)}
+    .nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;opacity:0;visibility:hidden;transition:opacity .3s ease, visibility .3s ease}
+    .nav-overlay.open{opacity:1;visibility:visible}
+    @media(max-width:768px){.hamburger-btn{display:flex}.nav-links{display:none} main{padding:100px 5% 40px}}
+    @media(max-width:600px){nav{justify-content:space-between;align-items:center;padding-left:5%;padding-right:5%} main{padding:90px 4% 32px} .page-title{font-size:1.75rem} .trainers-grid{gap:20px} .trainer-info{padding:18px}}
+
+    main{padding:120px 10% 60px;max-width:1100px;margin:0 auto;width:100%;min-width:0}
+    .page-title{font-family:'Oswald',sans-serif;font-size:2.5rem;margin-bottom:12px;letter-spacing:2px;text-transform:uppercase}
+    .page-subtitle{color:var(--muted);margin-bottom:48px;font-size:1.1rem;max-width:600px}
+
+    .trainer-dropdown-wrap{margin-bottom:32px}
+    .trainer-dropdown-wrap label{display:block;margin-bottom:10px;color:var(--muted);font-size:.95rem}
+    .trainer-dropdown-wrap select{
+      width:100%;
+      max-width:320px;
+      padding:14px 18px;
+      font-size:1rem;
+      font-family:inherit;
+      color:var(--text);
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      cursor:pointer;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 12px center;
+      background-size:20px;
+      padding-right:44px;
+    }
+    .trainer-dropdown-wrap select:focus{outline:none;border-color:var(--cta)}
+    .trainer-dropdown-wrap select:hover{border-color:rgba(201,162,39,.4)}
+    .trainer-section{margin-bottom:56px}
+    .trainer-section:last-of-type{margin-bottom:0}
+    .trainer-section.hidden{display:none}
+    .section-title{
+      font-family:'Oswald',sans-serif;
+      font-size:1.75rem;
+      letter-spacing:2px;
+      margin-bottom:24px;
+      padding-bottom:12px;
+      border-bottom:2px solid rgba(201,162,39,.35);
+      color:var(--cta);
+    }
+    .trainers-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
+      gap:32px;
+      min-width:0;
+    }
+    .trainer-card{
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:20px;
+      overflow:hidden;
+      min-width:0;
+      transition:transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+    }
+    .trainer-card:hover{
+      transform:translateY(-6px);
+      border-color:rgba(201,162,39,.25);
+      box-shadow:0 15px 40px rgba(0,0,0,.3);
+    }
+    .trainer-photo{
+      width:100%;
+      aspect-ratio:1;
+      object-fit:cover;
+      object-position:top center;
+      background:var(--bg2);
+    }
+    .trainer-photo-shubham{object-position:50% 12%}
+    .trainer-photo-angad{object-fit:cover;object-position:50% 30%}
+    .trainer-photo-placeholder{
+      width:100%;
+      aspect-ratio:1;
+      background:linear-gradient(180deg,#1a1a1a,#0f0f0f);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-size:3rem;
+    }
+    .trainer-info{padding:24px}
+    .trainer-name{font-family:'Oswald',sans-serif;font-size:1.5rem;margin-bottom:6px;color:var(--text)}
+    .trainer-role{color:var(--cta);font-size:.95rem;margin-bottom:12px;font-weight:500}
+    .trainer-bio{color:var(--muted);font-size:.95rem;line-height:1.65;word-wrap:break-word;overflow-wrap:break-word}
+    .trainer-bio .hl{color:var(--cta);font-weight:600}
+
+    footer{background:#050505;text-align:center;padding:40px 10%;color:var(--muted);margin-top:60px}
+    footer .social{display:flex;justify-content:center;gap:16px;margin-bottom:20px}
+    footer .social a{color:var(--muted);transition:color .3s ease, transform .3s ease;display:inline-flex;align-items:center;justify-content:center}
+    footer .social a:hover{color:var(--cta);transform:scale(1.1)}
+    footer .social svg{width:24px;height:24px;fill:currentColor}
+    footer h3{font-size:1.1rem;margin-bottom:8px}
+    footer p{font-size:.9rem}
+  </style>
+</head>
+<body>
+
+<div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
+<nav>
+  <h2><a href="index.html"><img src="logo.png" alt="Flex Fitness House" onerror="this.style.display='none'"></a></h2>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#features">Facilities</a>
+    <a href="index.html#pricing">Plans</a>
+    <a href="index.html#join">Join</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="trainers.html" style="color:var(--cta)">Trainers</a>
+    <a href="testimonials.html">Reviews</a>
+  </div>
+  <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-menu" id="navMenu">
+  <a href="index.html">Home</a>
+  <a href="index.html#about">About</a>
+  <a href="index.html#features">Facilities</a>
+  <a href="index.html#pricing">Plans</a>
+  <a href="index.html#join">Join</a>
+  <a href="index.html#contact">Contact</a>
+  <a href="trainers.html" style="color:var(--cta)">Trainers</a>
+  <a href="testimonials.html">Reviews</a>
+</div>
+
+<main>
+  <h1 class="page-title">Our Trainers</h1>
+  <p class="page-subtitle">Expert coaches who guide your journey. Get personalised training, form checks, and the push you need to hit your goals at Flex Fitness House.</p>
+
+  <div class="trainer-dropdown-wrap">
+    <label for="trainerType">Show trainers</label>
+    <select id="trainerType" aria-label="Choose trainer category">
+      <option value="elite">Elite Trainers</option>
+      <option value="certified">Certified Trainers</option>
+    </select>
+  </div>
+
+  <section class="trainer-section" id="elite">
+    <h2 class="section-title">Elite Trainers</h2>
+    <div class="trainers-grid" id="elite-grid"><!-- loaded from data.json --></div>
+  </section>
+
+  <section class="trainer-section hidden" id="certified">
+    <h2 class="section-title">Certified Trainers</h2>
+    <div class="trainers-grid" id="certified-grid"><!-- loaded from data.json --></div>
+  </section>
+</main>
+<script>
+(function(){
+  function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function card(t){
+    var photo = t.image
+      ? '<img class="trainer-photo ' + (t.photoClass||'') + '" src="' + esc(t.image) + '" alt="' + esc(t.name) + '" onerror="this.style.display=\'none\'">'
+      : '<div class="trainer-photo-placeholder" aria-hidden="true">👤</div>';
+    var bio = (t.bio||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/&lt;span class=&quot;hl&quot;&gt;/g,'<span class="hl">').replace(/&lt;\/span&gt;/g,'</span>');
+    return '<article class="trainer-card">' + photo + '<div class="trainer-info"><h3 class="trainer-name">' + esc(t.name) + '</h3><p class="trainer-role">' + esc(t.role) + '</p><p class="trainer-bio">' + bio + '</p></div></article>';
+  }
+  var eliteEl = document.getElementById('elite-grid');
+  var certifiedEl = document.getElementById('certified-grid');
+  if (!eliteEl || !certifiedEl) return;
+  var fallbackTrainers = [{"section":"elite","name":"Tanmay Vishwanath Talawadekar","role":"Certified Personal Training Coach (IFSA) • Certified Sport Nutritionist (IFSA)","bio":"CDACC – Coaches & Dietitians Advance Career Course, Akshay Chopra (online). Certified Clinical Population Coach (online batch). Expertise in <span class=\"hl\">bodybuilding preparation</span>, peak week protocol, post cycle therapy. <span class=\"hl\">Competitive bodybuilder</span> and swimmer.","image":null},{"section":"elite","name":"Shubham Agrawal","role":"Certified Personal Trainer (K11) • Dietitian & Nutrition Coach – Human Performance Nutrition (K11)","bio":"Diploma in Personal Training – K11 Fitness Academy. <span class=\"hl\">7–8 years</span> in the fitness industry. Expertise: <span class=\"hl\">fat loss & body recomposition</span>, strength & hypertrophy, bodyweight training & calisthenics, competitive bodybuilding, performance-based nutrition. <span class=\"hl\">Injury-specific training</span>: clients with knee, shoulder, lower back issues; exercise modification, mobility & corrective training; safe load progression & return-to-training protocols.","image":"./images/shubham.jpg.jpeg","photoClass":"trainer-photo-shubham"},{"section":"elite","name":"Aarti Thali","role":"Certified Personal Trainer (IFSA) • Dietitian & Nutrition Coach – Human Performance Nutrition (IFSA)","bio":"Diploma in Personal Training – IFSA Fitness Academy. <span class=\"hl\">12+ years</span> in the fitness industry. Expertise: <span class=\"hl\">fat loss & body recomposition</span>, strength & hypertrophy, bodyweight training, professional powerlifting, <span class=\"hl\">PCOD/PCOS management</span> training. <span class=\"hl\">National & State-level Powerlifting</span>; former National-level Karate athlete, 14 years experience, Black Belt (first attempt).","image":"./images/aarti.jpg.jpg"},{"section":"certified","name":"Sheetal Kumbhar","role":"Fitness Coach (IFSA) • Nutritional Counsellor (IFSA) • CPR Certified","bio":"<span class=\"hl\">4 years</span> in the fitness industry. IFSA-certified fitness coach and nutritional counsellor with CPR certification. Supports members with structured training and diet guidance for sustainable results.","image":"./images/sheetal.jpg.jpeg"},{"section":"certified","name":"Pravin Sorte","role":"Certified Personal Trainer (IFSA) • CPR Certified","bio":"<span class=\"hl\">10 years</span> of experience in the fitness industry. IFSA-certified personal trainer with CPR certification. Focuses on safe, effective programming and long-term client progress.","image":null},{"section":"certified","name":"Prasad Patil","role":"Personal Training, Sport Nutrition, Functional Training L1 & L2, Powerlifting (IFSA)","bio":"<span class=\"hl\">10 years</span> of experience. IFSA certifications in personal training, sport nutritionist, functional training (level 1 & 2), and powerlifting. Well-rounded approach for strength, conditioning, and nutrition.","image":"./images/prasad.jpg.jpeg"},{"section":"certified","name":"Angad Raut","role":"Certified Personal Trainer (IFSA) • CPR Certified","bio":"<span class=\"hl\">11 years</span> in the fitness industry. IFSA-certified personal trainer with CPR certification. Experienced in guiding members through personalised programmes and safe training practices.","image":"./images/angad.jpg.jpeg","photoClass":"trainer-photo-angad"},{"section":"certified","name":"Pankaj Babu Shinar","role":"Certified Personal Trainer (K11) • Elite Kickboxing L1 & L2 • CPR Certified","bio":"<span class=\"hl\">14 years of experience.</span> K11-certified personal trainer with Elite Kickboxing Level 1 & 2 and CPR certification. Brings combat fitness and functional conditioning to training programmes for members who want strength and agility.","image":"./images/pankaj.jpg.jpeg"},{"section":"certified","name":"Suhas Gaikar","role":"CPR Certified • Certified Personal Trainer (IFSA)","bio":"<span class=\"hl\">7 years of experience</span> in the field. IFSA-certified personal trainer with CPR certification. Dedicated to helping members achieve their fitness goals through safe, structured training.","image":"./images/suhas.jpg.jpeg"},{"section":"certified","name":"Devendra Mahadik","role":"CPR Certified • Certified Personal Trainer (K11)","bio":"<span class=\"hl\">22 years of experience.</span> K11-certified personal trainer with CPR certification. Brings extensive expertise to help members build strength, endurance and lasting fitness habits.","image":"./images/devendra.jpg.jpeg"},{"section":"certified","name":"Swapnil Vakhare","role":"CPR Certified • Certified Personal Trainer (IFSA)","bio":"<span class=\"hl\">16 years of experience.</span> IFSA-certified personal trainer with CPR certification. Experienced in designing effective programmes for members at every fitness level.","image":"./images/swapnil.jpg.jpeg"}];
+  function render(list){
+    eliteEl.innerHTML = list.filter(function(t){ return t.section === 'elite'; }).map(card).join('');
+    certifiedEl.innerHTML = list.filter(function(t){ return t.section === 'certified'; }).map(card).join('');
+  }
+  fetch('data.json').then(function(r){ return r.json(); }).then(function(data){
+    render(data.trainers || fallbackTrainers);
+  }).catch(function(){ render(fallbackTrainers); });
+})();
+</script>
+
+<script>
+(function(){
+  var select = document.getElementById('trainerType');
+  var eliteSection = document.getElementById('elite');
+  var certifiedSection = document.getElementById('certified');
+  if (!select || !eliteSection || !certifiedSection) return;
+  function updateVisibility(){
+    var value = select.value;
+    if (value === 'elite') {
+      eliteSection.classList.remove('hidden');
+      certifiedSection.classList.add('hidden');
+    } else {
+      eliteSection.classList.add('hidden');
+      certifiedSection.classList.remove('hidden');
+    }
+  }
+  select.addEventListener('change', updateVisibility);
+  updateVisibility();
+})();
+</script>
+
+<footer>
+  <div class="social">
+    <a href="https://www.instagram.com/flexthefitnesshouse?igsh=cWFjdWpjZXEzOGF6" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+    <a href="https://wa.me/918976249444?text=Hi%2C%20I%20would%20like%20to%20enquire%20about%20Flex%20Fitness%20House%20gym%20membership." target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+  </div>
+  <h3>Flex Fitness House Gym</h3>
+  <p>Dombivli • Premium Fitness Destination</p>
+  <p>Operating since 2022</p>
+  <p>© 2026 Flex Fitness House Gym</p>
+</footer>
+
+<script>
+(function(){
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navMenu = document.getElementById('navMenu');
+  var navOverlay = document.getElementById('navOverlay');
+  function openMenu(){
+    hamburgerBtn.classList.add('open');
+    navMenu.classList.add('open');
+    navOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu(){
+    hamburgerBtn.classList.remove('open');
+    navMenu.classList.remove('open');
+    navOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  hamburgerBtn.addEventListener('click', function(){ navMenu.classList.contains('open') ? closeMenu() : openMenu(); });
+  navOverlay.addEventListener('click', closeMenu);
+  navMenu.querySelectorAll('a').forEach(function(link){ link.addEventListener('click', closeMenu); });
+})();
+</script>
+</body>
+</html>

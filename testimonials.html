@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Reviews & Testimonials | Flex Fitness House Gym • Dombivli</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0a0a0a;
+      --bg2:#111;
+      --card:#161616;
+      --accent:#d90429;
+      --cta:#c9a227;
+      --cta2:#e5c158;
+      --text:#f5f5f5;
+      --muted:#b0b0b0;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+    nav{
+      position:fixed;top:0;left:0;width:100%;
+      background:rgba(0,0,0,.85);backdrop-filter:blur(10px);
+      z-index:1000;display:flex;justify-content:space-between;align-items:center;
+      padding:12px 8%;padding-top:max(12px,env(safe-area-inset-top));min-height:95px;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    nav h2{font-family:'Oswald',sans-serif;display:flex;align-items:center}
+    nav h2 img{height:75px;width:auto;max-width:240px;min-height:75px;object-fit:contain}
+    nav a{color:var(--text);margin-left:28px;text-decoration:none;font-size:.95rem;transition:color .3s}
+    nav a:hover{color:var(--cta)}
+    .nav-links{display:flex;align-items:center}
+    .hamburger-btn{display:none;flex-direction:column;justify-content:center;gap:6px;width:44px;height:44px;padding:8px;background:transparent;border:none;cursor:pointer;z-index:1002}
+    .hamburger-btn span{display:block;width:24px;height:2px;background:var(--cta);transition:transform .3s ease, opacity .3s ease}
+    .hamburger-btn.open span:nth-child(1){transform:translateY(8px) rotate(45deg)}
+    .hamburger-btn.open span:nth-child(2){opacity:0}
+    .hamburger-btn.open span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}
+    .nav-menu{position:fixed;top:0;right:0;width:280px;max-width:85vw;height:100vh;background:rgba(10,10,10,.98);border-left:1px solid rgba(255,255,255,.08);padding:100px 24px 24px;z-index:1001;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto}
+    .nav-menu.open{transform:translateX(0)}
+    .nav-menu a{display:block;margin:0 0 8px 0;padding:14px 0;font-size:1.1rem;color:var(--cta);text-decoration:none;border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-menu a:hover{color:var(--cta2)}
+    .nav-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;opacity:0;visibility:hidden;transition:opacity .3s ease, visibility .3s ease}
+    .nav-overlay.open{opacity:1;visibility:visible}
+    @media(max-width:768px){
+      .hamburger-btn{display:flex}
+      .nav-links{display:none}
+    }
+    @media(max-width:600px){nav{justify-content:space-between;align-items:center}}
+
+    main{padding:120px 10% 60px;max-width:900px;margin:0 auto}
+    .title{font-family:'Oswald',sans-serif;font-size:2.2rem;margin-bottom:12px;letter-spacing:2px}
+    .subtitle{color:var(--muted);margin-bottom:40px;font-size:1.05rem}
+
+    .google-cta{
+      background:linear-gradient(135deg, rgba(30,30,30,.95), rgba(20,20,20,.98));
+      border:1px solid rgba(201,162,39,.3);
+      border-radius:20px;
+      padding:32px;
+      text-align:center;
+      margin-bottom:48px;
+    }
+    .google-cta h2{font-family:'Oswald',sans-serif;font-size:1.5rem;margin-bottom:12px;color:var(--text)}
+    .google-cta p{color:var(--muted);margin-bottom:20px;font-size:.95rem}
+    .google-cta .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      background:var(--cta);
+      color:#0a0a0a;
+      padding:14px 28px;
+      border-radius:12px;
+      text-decoration:none;
+      font-weight:600;
+      font-size:1rem;
+      transition:transform .3s ease, box-shadow .3s ease;
+      border:none;
+      cursor:pointer;
+    }
+    .google-cta .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,162,39,.4)}
+    .google-cta .btn svg{width:22px;height:22px;fill:currentColor}
+
+    .testimonials-grid{display:grid;gap:24px;margin-bottom:48px}
+    .testimonial-card{
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:18px;
+      padding:28px;
+      transition:border-color .3s ease;
+    }
+    .testimonial-card:hover{border-color:rgba(201,162,39,.2)}
+    .testimonial-stars{color:var(--cta);margin-bottom:12px;font-size:1.1rem;letter-spacing:2px}
+    .testimonial-text{color:var(--text);margin-bottom:16px;font-size:1rem;line-height:1.7}
+    .testimonial-author{color:var(--cta);font-weight:600;font-size:.95rem}
+    .testimonial-source{color:var(--muted);font-size:.85rem;margin-top:4px}
+    .testimonial-card.review-more{display:none}
+    .see-more-wrap{text-align:center;margin-top:28px;margin-bottom:16px}
+    .see-more-wrap .btn{
+      background:var(--card);
+      color:var(--cta);
+      border:1px solid rgba(201,162,39,.4);
+      padding:12px 32px;
+      border-radius:12px;
+      font-weight:600;
+      font-size:1rem;
+      cursor:pointer;
+      transition:transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+    }
+    .see-more-wrap .btn:hover{border-color:var(--cta);transform:translateY(-2px);box-shadow:0 6px 20px rgba(201,162,39,.2)}
+
+    .submit-section{
+      background:var(--card);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:20px;
+      padding:36px;
+      margin-bottom:48px;
+    }
+    .submit-section h2{font-family:'Oswald',sans-serif;font-size:1.5rem;margin-bottom:8px}
+    .submit-section .note{color:var(--muted);font-size:.9rem;margin-bottom:24px}
+    .submit-section label{display:block;color:var(--muted);font-size:.9rem;margin-bottom:6px}
+    .submit-section input,.submit-section textarea{
+      width:100%;
+      padding:12px 14px;
+      margin-bottom:18px;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:10px;
+      background:var(--bg2);
+      color:var(--text);
+      font-size:1rem;
+      font-family:inherit;
+      box-sizing:border-box;
+    }
+    .submit-section textarea{min-height:120px;resize:vertical}
+    .submit-section input:focus,.submit-section textarea:focus{outline:none;border-color:var(--cta)}
+    .submit-section .stars-input{display:flex;gap:8px;margin-bottom:18px}
+    .submit-section .stars-input button{
+      background:transparent;
+      border:none;
+      color:var(--muted);
+      font-size:1.8rem;
+      cursor:pointer;
+      padding:0;
+      transition:color .2s ease, transform .2s ease;
+    }
+    .submit-section .stars-input button:hover,.submit-section .stars-input button.active{color:var(--cta)}
+    .submit-section .stars-input button:hover{transform:scale(1.1)}
+    .submit-section .btn{
+      background:var(--cta);
+      color:#0a0a0a;
+      padding:14px 32px;
+      border-radius:12px;
+      border:none;
+      font-weight:600;
+      font-size:1rem;
+      cursor:pointer;
+      transition:transform .3s ease, box-shadow .3s ease;
+    }
+    .submit-section .btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(201,162,39,.35)}
+    .submit-section .success-msg{
+      display:none;
+      background:rgba(201,162,39,.15);
+      border:1px solid rgba(201,162,39,.3);
+      border-radius:12px;
+      padding:16px;
+      margin-top:20px;
+      color:var(--cta2);
+    }
+    .submit-section .success-msg.show{display:block}
+    .submit-section .success-msg a{color:var(--cta2);text-decoration:underline}
+
+    footer{background:#050505;text-align:center;padding:40px 10%;color:var(--muted);margin-top:40px}
+    footer .social{display:flex;justify-content:center;gap:16px;margin-bottom:20px}
+    footer .social a{color:var(--muted);transition:color .3s ease, transform .3s ease;display:inline-flex;align-items:center;justify-content:center}
+    footer .social a:hover{color:var(--cta);transform:scale(1.1)}
+    footer .social svg{width:24px;height:24px;fill:currentColor}
+    footer h3{font-size:1.1rem;margin-bottom:8px}
+    footer p{font-size:.9rem}
+  </style>
+</head>
+<body>
+
+<div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
+<nav>
+  <h2><a href="index.html"><img src="logo.png" alt="Flex Fitness House" onerror="this.style.display='none'"></a></h2>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#features">Facilities</a>
+    <a href="index.html#pricing">Plans</a>
+    <a href="index.html#join">Join</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="trainers.html">Trainers</a>
+    <a href="testimonials.html" style="color:var(--cta)">Reviews</a>
+  </div>
+  <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="nav-menu" id="navMenu">
+  <a href="index.html">Home</a>
+  <a href="index.html#about">About</a>
+  <a href="index.html#features">Facilities</a>
+  <a href="index.html#pricing">Plans</a>
+  <a href="index.html#join">Join</a>
+  <a href="index.html#contact">Contact</a>
+  <a href="trainers.html">Trainers</a>
+  <a href="testimonials.html" style="color:var(--cta)">Reviews</a>
+</div>
+
+<main>
+  <h1 class="title">Reviews & Testimonials</h1>
+  <p class="subtitle">What our members say about Flex Fitness House. Leave your review on our site and on Google.</p>
+
+  <section class="google-cta">
+    <h2>Leave a review on Google</h2>
+    <p>Your review on Google helps others find us and see what the gym is really like. Click below to open our Google listing — then tap &quot;Write a review&quot;.</p>
+    <a href="https://www.google.com/maps/search/?api=1&query=Flex+Fitness+House+Gnp+Arcadia+Dombivli+East+421203" class="btn" target="_blank" rel="noopener noreferrer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      Open on Google & write a review
+    </a>
+  </section>
+
+  <section class="submit-section">
+    <h2>Submit your testimonial</h2>
+    <p class="note">Your review will appear on this page. To have it also show on Google (so people can find it when they search), click the &quot;Open on Google & write a review&quot; button above after submitting here.</p>
+    <form id="testimonialForm">
+      <label for="authorName">Your name (optional)</label>
+      <input type="text" id="authorName" name="name" placeholder="e.g. Rahul K." maxlength="80">
+      <label for="reviewRating">Rating</label>
+      <div class="stars-input" id="starsInput" role="group" aria-label="Rating">
+        <button type="button" data-rating="1" aria-label="1 star">★</button>
+        <button type="button" data-rating="2" aria-label="2 stars">★</button>
+        <button type="button" data-rating="3" aria-label="3 stars">★</button>
+        <button type="button" data-rating="4" aria-label="4 stars">★</button>
+        <button type="button" data-rating="5" aria-label="5 stars">★</button>
+      </div>
+      <label for="reviewText">Your review</label>
+      <textarea id="reviewText" name="review" placeholder="Share your experience at Flex Fitness House..." required minlength="20" maxlength="2000"></textarea>
+      <button type="submit" class="btn">Submit review</button>
+    </form>
+    <div class="success-msg" id="successMsg">
+      Thank you! Your review is now on our website. <strong>To have it on Google too</strong>, <a href="https://www.google.com/maps/search/?api=1&query=Flex+Fitness+House+Gnp+Arcadia+Dombivli+East+421203" target="_blank" rel="noopener noreferrer">click here to leave the same review on Google</a> — it only takes a minute.
+    </div>
+  </section>
+
+  <h2 class="title" style="font-size:1.6rem;margin-bottom:20px">What members say</h2>
+  <div class="testimonials-grid" id="testimonialsGrid">
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">I've been a member of Flex Fitness House for over a year, and it's one of the best-equipped gyms I've come across. There are unmatched options, especially for legs and back, with 10–12 machines each, and a well-designed cardio section.</p>
+      <p class="testimonial-author">— Saloni Mithagri</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Flex – The Fitness House is truly one of the best gyms out there! The gym is packed with modern, top-class machines — most of them from Panatta — and the entire space is fully air-conditioned with a great, motivating ambiance.</p>
+      <p class="testimonial-author">— Rupesh Kamble</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Flex Fitness House, Dombivli MIDC – The Benchmark for Fitness Excellence. Flex Fitness House in Dombivli MIDC has truly raised the bar, standing out as one of the best gyms in Dombivli today. Whether your focus is strength training, cardio, or overall fitness.</p>
+      <p class="testimonial-author">— Mandar Khandkar</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Joining this gym has been one of the best choices for my fitness journey, and a big credit goes to my trainer, Suhas Sir. He is incredibly knowledgeable, disciplined, and truly dedicated to helping his clients grow. His way of teaching and guiding is exceptional.</p>
+      <p class="testimonial-author">— Jeet Patel</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">In the Kalyan-Dombivli area, Flex Fitness House Gym stands out as the undisputed number one fitness center. It's more than just a place to work out; it's the hub that directs your entire fitness journey!</p>
+      <p class="testimonial-author">— Priyanka Karande</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">I've been training at Flex Fitness House for almost a year now, and it is undoubtedly one of the best gyms in the Kalyan–Dombivli area. The gym is equipped with top-tier machines from Panatta, Gymleco, and Jerai Fitness, which really elevate the experience.</p>
+      <p class="testimonial-author">— Sanoop Nair</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Flex Fitness House is an excellent gym with a truly premium feel. The equipment is high-class, modern, and very well maintained. What really stands out is the wide variety of machines — there are multiple machines targeting the same muscle groups.</p>
+      <p class="testimonial-author">— Prasad Chavan</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Flex The Fitness House – Dombivli East is an excellent gym for anyone serious about fitness. The equipment is top-notch, well maintained, and covers everything needed for strength training, cardio, and functional workouts. You never feel crowded or waiting.</p>
+      <p class="testimonial-author">— Snehal Nanavare</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">One of the best gyms with high-quality equipment and ample workout space. The trainers are extremely polite, supportive, and always ready to guide you whenever needed.</p>
+      <p class="testimonial-author">— Shraddha Rai</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">I've been a member of this gym for almost 2 years, and I can confidently say it's one of the best gyms in Dombivli. The atmosphere is always positive and friendly, making workouts enjoyable.</p>
+      <p class="testimonial-author">— Singh Kush</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Sheetal mam's training is one of the best fitness coaching programs for anyone serious about health and transformation. The training sessions are well planned with full focus on correct exercise form, safety, and results. Personal attention and dedication make a real difference.</p>
+      <p class="testimonial-author">— Gaurav Kene</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Flex Fitness House is an excellent gym with a great vibe and well-maintained equipment. What really makes the difference here is Pratik Sir. He is extremely knowledgeable, patient, and genuinely invested in his clients' progress. His guidance has been invaluable.</p>
+      <p class="testimonial-author">— Vrishal Govale</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Amazing gym with all the equipment you need for a complete workout — from strength training to cardio and functional training. The space is well-maintained and has everything required to train seriously.</p>
+      <p class="testimonial-author">— Mitali Raje</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Probably the best gym in this vicinity. It has every equipment required to get the best output, and very experienced and helpful gym trainers such as Tanmay Sir, Pratik sir. Been going here for almost a year now and I've gained around 8 kgs due to the dietary plans given to me by my trainer. 10/10</p>
+      <p class="testimonial-author">— Pranay Poothen</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">I started my fitness journey here in my early days, and I'm truly grateful for all the support, guidance, and motivation I received along the way. This gym has always felt like more than just a workout space — it's a place that genuinely cares about your growth.</p>
+      <p class="testimonial-author">— Onkar Patankar</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">My gym trainer Sheetal mam is extremely professional and experienced. Every workout session is well planned. Proper guidance is given for posture and technique.</p>
+      <p class="testimonial-author">— Khem Sahu</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">I genuinely regret not joining Flex Gym earlier. For a long time, I worked out at smaller gyms with outdated machines, limited space, and trainers who lacked the right technical knowledge and attention. After experiencing Flex, I clearly see the difference.</p>
+      <p class="testimonial-author">— Sumit Maji</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Really happy with this gym — good equipment, nice people, everyone's just focused on their workouts which I like. I came here because I needed to sort out my health. Had fatty liver and knew I had to make a change. The training and support here have been a big part of my journey.</p>
+      <p class="testimonial-author">— Anish Verma</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">It has been 4 months since I joined this gym and my experience so far has been really great. I have been training under Ravi Kumar sir who is really helpful and the training he has prepared based on my requirement and fitness level is spot on.</p>
+      <p class="testimonial-author">— Nitin Chavan</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">A former trainer / gym enthusiast opinion: Good parts — equipment quality, cleanliness, trainers, and overall gym environment are excellent.</p>
+      <p class="testimonial-author">— Sudesh a.k.a Mani</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Best gym in Dombivli. Top notch equipment — wide variety, and believe me the machines are such that they hit the right muscles and you'll start feeling the difference from day one. Staff is friendly. Suits the best for office goers with flexible timings.</p>
+      <p class="testimonial-author">— Maneesh Chaubey</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">It's been around 3 months since I joined this gym, and I've genuinely enjoyed the experience so far. The atmosphere is great — clean, well-maintained, and equipped with high-quality Panatta machines that make workouts smooth and effective.</p>
+      <p class="testimonial-author">— Amit Nara</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+    <article class="testimonial-card">
+      <div class="testimonial-stars" aria-hidden="true">★★★★★</div>
+      <p class="testimonial-text">Flex The Fitness House is one of the best gyms I've trained at. The biggest highlights are the exceptional cleanliness and excellent machine maintenance. Every piece of equipment is well cared for and always in top condition. The gym is spacious and the trainers are supportive.</p>
+      <p class="testimonial-author">— Shashikant Mane</p>
+      <p class="testimonial-source">Google</p>
+    </article>
+  </div>
+  <div class="see-more-wrap">
+    <button type="button" class="btn" id="seeMoreBtn">See more reviews</button>
+  </div>
+</main>
+
+<footer>
+  <div class="social">
+    <a href="https://www.instagram.com/flexthefitnesshouse?igsh=cWFjdWpjZXEzOGF6" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+    <a href="https://wa.me/918976249444?text=Hi%2C%20I%20would%20like%20to%20enquire%20about%20Flex%20Fitness%20House%20gym%20membership." target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+  </div>
+  <h3>Flex Fitness House Gym</h3>
+  <p>Dombivli • Premium Fitness Destination</p>
+  <p>Operating since 2022</p>
+  <p>© 2026 Flex Fitness House Gym</p>
+</footer>
+
+<script>
+(function(){
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navMenu = document.getElementById('navMenu');
+  var navOverlay = document.getElementById('navOverlay');
+  function openMenu(){
+    hamburgerBtn.classList.add('open');
+    navMenu.classList.add('open');
+    navOverlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeMenu(){
+    hamburgerBtn.classList.remove('open');
+    navMenu.classList.remove('open');
+    navOverlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  hamburgerBtn.addEventListener('click', function(){ navMenu.classList.contains('open') ? closeMenu() : openMenu(); });
+  navOverlay.addEventListener('click', closeMenu);
+  navMenu.querySelectorAll('a').forEach(function(link){ link.addEventListener('click', closeMenu); });
+})();
+</script>
+<script>
+(function(){
+  var STORAGE_KEY = 'flex_fitness_testimonials';
+  var form = document.getElementById('testimonialForm');
+  var grid = document.getElementById('testimonialsGrid');
+  var successMsg = document.getElementById('successMsg');
+  var starsInput = document.getElementById('starsInput');
+  var reviewText = document.getElementById('reviewText');
+  var authorName = document.getElementById('authorName');
+  var selectedRating = 0;
+
+  function getStored(){
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+  function setStored(list){
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); } catch(e) {}
+  }
+  function starStr(n){ var s=''; for(var i=0;i<5;i++) s+= i<n?'★':'☆'; return s; }
+  function renderCard(t){
+    var card = document.createElement('article');
+    card.className = 'testimonial-card';
+    card.innerHTML = '<div class="testimonial-stars" aria-hidden="true">'+starStr(t.rating)+'</div>' +
+      '<p class="testimonial-text">'+t.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>' +
+      '<p class="testimonial-author">— '+(t.name||'Member')+'</p>' +
+      '<p class="testimonial-source">Website</p>';
+    return card;
+  }
+  function loadStored(){
+    var list = getStored();
+    list.forEach(function(t){ grid.appendChild(renderCard(t)); });
+  }
+  loadStored();
+
+  (function(){
+    var REVIEWS_PER_PAGE = 5;
+    var grid = document.getElementById('testimonialsGrid');
+    var btn = document.getElementById('seeMoreBtn');
+    if (!grid || !btn) return;
+    function updateVisibility(){
+      var cards = grid.querySelectorAll('.testimonial-card');
+      var total = cards.length;
+      var visibleCount = 0;
+      for (var i = 0; i < cards.length; i++){
+        if (i < REVIEWS_PER_PAGE){
+          cards[i].classList.remove('review-more');
+          visibleCount++;
+        } else {
+          cards[i].classList.add('review-more');
+        }
+      }
+      btn.style.display = total <= REVIEWS_PER_PAGE ? 'none' : 'inline-block';
+      btn.textContent = 'See more reviews';
+    }
+    function showAll(){
+      grid.querySelectorAll('.testimonial-card').forEach(function(c){ c.classList.remove('review-more'); });
+      btn.textContent = 'See less';
+    }
+    function showFive(){
+      var cards = grid.querySelectorAll('.testimonial-card');
+      for (var i = 0; i < cards.length; i++){
+        if (i < REVIEWS_PER_PAGE) cards[i].classList.remove('review-more');
+        else cards[i].classList.add('review-more');
+      }
+      btn.textContent = 'See more reviews';
+    }
+    btn.addEventListener('click', function(){
+      if (btn.textContent.indexOf('less') !== -1){ showFive(); return; }
+      var hidden = grid.querySelectorAll('.testimonial-card.review-more');
+      var showCount = Math.min(REVIEWS_PER_PAGE, hidden.length);
+      for (var j = 0; j < showCount; j++) hidden[j].classList.remove('review-more');
+      if (grid.querySelectorAll('.testimonial-card.review-more').length === 0) btn.textContent = 'See less';
+    });
+    updateVisibility();
+  })();
+
+  starsInput.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      selectedRating = parseInt(btn.getAttribute('data-rating'),10);
+      starsInput.querySelectorAll('button').forEach(function(b){
+        b.classList.toggle('active', parseInt(b.getAttribute('data-rating'),10) <= selectedRating);
+      });
+    });
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var text = (reviewText.value||'').trim();
+    if (text.length < 20){ alert('Please write at least 20 characters.'); return; }
+    if (selectedRating < 1){ alert('Please select a rating.'); return; }
+    var name = (authorName.value||'').trim();
+    var item = { name: name || 'Member', rating: selectedRating, text: text, date: new Date().toISOString() };
+    var list = getStored();
+    list.unshift(item);
+    setStored(list);
+    grid.insertBefore(renderCard(item), grid.firstChild);
+    form.reset();
+    selectedRating = 0;
+    starsInput.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+    successMsg.classList.add('show');
+    successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+})();
+</script>
+</body>
+</html>

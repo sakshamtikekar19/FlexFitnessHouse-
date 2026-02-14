@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Flex Fitness House</title>
+  <style>
+    :root{ --bg:#0f0f0f; --bg2:#1a1a1a; --text:#f5f5f5; --muted:#999; --cta:#c9a227; --border:rgba(255,255,255,.1); }
+    *{box-sizing:border-box}
+    body{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; min-height: 100vh; }
+    .login-wrap{ max-width: 360px; margin: 80px auto; padding: 32px; background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; }
+    .login-wrap h1{ margin: 0 0 24px; font-size: 1.5rem; color: var(--cta); }
+    .login-wrap label{ display: block; margin-bottom: 8px; color: var(--muted); font-size: .9rem; }
+    .login-wrap input[type="password"]{ width: 100%; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 1rem; margin-bottom: 16px; }
+    .login-wrap button{ width: 100%; padding: 12px; background: var(--cta); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+    .login-wrap .error{ color: #e74; font-size: .9rem; margin-top: 8px; }
+    .error{ color: #e74; font-size: .9rem; }
+    .admin-header{ display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    .admin-header h1{ margin: 0; font-size: 1.5rem; color: var(--cta); }
+    .admin-header a{ color: var(--muted); text-decoration: none; font-size: .9rem; }
+    .admin-header a:hover{ color: var(--cta); }
+    .btn{ display: inline-block; padding: 10px 20px; background: var(--cta); color: #000; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: .9rem; text-decoration: none; }
+    .btn:hover{ opacity: .95; }
+    .btn-outline{ background: transparent; color: var(--cta); border: 1px solid var(--cta); }
+    .btn-danger{ background: #c0392b; color: #fff; }
+    .btn-sm{ padding: 6px 12px; font-size: .85rem; }
+    .tabs{ display: flex; gap: 8px; margin-bottom: 24px; }
+    .tabs button{ padding: 10px 20px; background: var(--bg2); border: 1px solid var(--border); color: var(--muted); border-radius: 8px; cursor: pointer; font-size: .95rem; }
+    .tabs button.active{ background: var(--cta); color: #000; border-color: var(--cta); }
+    .panel{ display: none; max-width: 900px; }
+    .panel.active{ display: block; }
+    table{ width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td{ text-align: left; padding: 12px; border-bottom: 1px solid var(--border); }
+    th{ color: var(--muted); font-weight: 500; font-size: .85rem; }
+    td input, td select, td textarea{ width: 100%; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: .9rem; }
+    td textarea{ min-height: 80px; resize: vertical; }
+    .actions{ display: flex; gap: 8px; }
+    .card-list{ display: flex; flex-direction: column; gap: 16px; }
+    .card-item{ background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+    .card-item h4{ margin: 0 0 8px; color: var(--cta); }
+    .card-item .meta{ color: var(--muted); font-size: .85rem; margin-bottom: 8px; }
+    .card-item .actions{ margin-top: 12px; }
+    .form-row{ margin-bottom: 16px; }
+    .form-row label{ display: block; margin-bottom: 6px; color: var(--muted); font-size: .9rem; }
+    .form-row input, .form-row select, .form-row textarea{ width: 100%; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; color: var(--text); }
+    .form-row textarea{ min-height: 100px; resize: vertical; }
+    .upload-row .file-input{ color: var(--muted); font-size: .9rem; padding: 8px 0; }
+    .form-hint{ color: var(--muted); font-size: .8rem; margin: 8px 0 0; }
+    .image-preview{ margin-top: 12px; }
+    .image-preview img{ max-width: 120px; max-height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; }
+    .image-preview .preview-label{ font-size: .8rem; color: var(--muted); margin-bottom: 6px; }
+    .modal{ display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+    .modal.open{ display: flex; }
+    .modal-box{ background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 24px; max-width: 500px; width: 100%; max-height: 90vh; overflow: auto; }
+    .modal-box h3{ margin: 0 0 20px; color: var(--cta); }
+    .modal-box .modal-actions{ margin-top: 20px; display: flex; gap: 10px; }
+    .toast{ position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; background: var(--cta); color: #000; border-radius: 8px; font-weight: 500; z-index: 1001; display: none; }
+    .toast.show{ display: block; animation: fadeIn .3s ease; }
+    @keyframes fadeIn{ from{ opacity: 0; transform: translateY(10px); } to{ opacity: 1; transform: translateY(0); } }
+    .file-input-wrap{ margin-bottom: 16px; }
+    .file-input-wrap input[type="file"]{ color: var(--muted); font-size: .9rem; }
+    .card-item .role-full{ color: var(--muted); font-size: .9rem; margin: 6px 0; line-height: 1.4; }
+    .card-item .bio-preview{ color: var(--text); font-size: .85rem; opacity: .9; margin: 0 0 12px; line-height: 1.5; max-height: 3em; overflow: hidden; text-overflow: ellipsis; }
+    .section-badge{ display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: .75rem; font-weight: 600; margin-bottom: 6px; }
+    .section-badge.elite{ background: rgba(201,162,39,.2); color: var(--cta); }
+    .section-badge.certified{ background: rgba(255,255,255,.08); color: var(--muted); }
+    .pricing-summary{ color: var(--muted); font-size: .9rem; margin-bottom: 12px; }
+    .pricing-table-wrap{ overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .pricing-cards{ display: none; }
+    @media (max-width: 768px){
+      body{ padding: 12px; }
+      .login-wrap input[type="password"], .login-wrap button{ min-height: 44px; font-size: 16px; }
+      .admin-header{ flex-direction: column; align-items: stretch; }
+      .admin-header > div{ display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; }
+      .admin-header .btn, .admin-header a.btn{ flex: 1; min-width: 120px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
+      .tabs{ flex-wrap: wrap; }
+      .tabs button{ flex: 1; min-height: 44px; min-width: 80px; }
+      .panel{ max-width: none; }
+      table{ display: none; }
+      .pricing-table-wrap{ display: none; }
+      .pricing-cards{ display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+      .pricing-card{ background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+      .pricing-card .plan-name{ font-weight: 600; color: var(--cta); margin: 0 0 8px; }
+      .pricing-card .plan-price{ font-size: 1.25rem; margin: 4px 0; }
+      .pricing-card .plan-original{ font-size: .95rem; color: var(--muted); text-decoration: line-through; margin-left: 8px; }
+      .pricing-card .plan-tagline{ font-size: .9rem; color: var(--muted); margin: 8px 0 12px; }
+      .pricing-card .actions{ display: flex; gap: 8px; margin-top: 12px; }
+      .pricing-card .btn{ min-height: 44px; padding: 12px 16px; }
+      .card-item{ padding: 20px; }
+      .card-item h4{ font-size: 1.15rem; }
+      .card-item .actions .btn{ min-height: 44px; padding: 12px 18px; min-width: 80px; }
+      .btn-sm{ min-height: 44px; padding: 10px 16px; }
+      .modal{ padding: 12px; align-items: flex-start; }
+      .modal-box{ max-height: 85vh; padding: 20px; font-size: 16px; }
+      .form-row input, .form-row select, .form-row textarea{ min-height: 44px; font-size: 16px; padding: 12px; }
+      .form-row textarea{ min-height: 100px; }
+      .modal-actions .btn{ min-height: 44px; padding: 12px 20px; flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginWrap" class="login-wrap">
+    <h1>Admin login</h1>
+    <form id="loginForm">
+      <label for="adminPass">Password</label>
+      <input type="password" id="adminPass" placeholder="Enter admin password" autocomplete="current-password">
+      <div id="loginError" class="error"></div>
+      <button type="submit">Log in</button>
+    </form>
+  </div>
+
+  <div id="adminPanel" style="display:none">
+    <div class="admin-header">
+      <h1>Flex Fitness House – Admin</h1>
+      <div>
+        <button type="button" class="btn btn-outline" id="loadFileBtn">Load data.json</button>
+        <input type="file" id="loadFile" accept=".json" style="display:none">
+        <button type="button" class="btn" id="exportBtn">Export data.json</button>
+        <a href="index.html" class="btn btn-outline">View site</a>
+        <button type="button" class="btn btn-outline" id="changePassBtn">Change password</button>
+        <button type="button" class="btn btn-outline" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="pricing">Pricing</button>
+      <button type="button" class="tab" data-tab="trainers">Trainers</button>
+    </div>
+
+    <div id="pricingPanel" class="panel active">
+      <p class="pricing-summary" id="pricingSummary">—</p>
+      <p style="color:var(--muted);margin-bottom:16px">Edit membership plans. After saving, click Export and upload the file to your server.</p>
+      <button type="button" class="btn btn-sm" id="addPlanBtn">+ Add plan</button>
+      <div class="pricing-table-wrap">
+        <table>
+          <thead><tr><th>Plan name</th><th>Price</th><th>Original (strikethrough)</th><th>Tagline</th><th></th></tr></thead>
+          <tbody id="pricingBody"></tbody>
+        </table>
+      </div>
+      <div class="pricing-cards" id="pricingCards"></div>
+    </div>
+
+    <div id="trainersPanel" class="panel">
+      <p class="pricing-summary" id="trainersSummary">—</p>
+      <p style="color:var(--muted);margin-bottom:16px">Edit trainers (Elite / Certified). Use <code>&lt;span class="hl"&gt;text&lt;/span&gt;</code> in bio for gold highlights.</p>
+      <button type="button" class="btn btn-sm" id="addTrainerBtn">+ Add trainer</button>
+      <div id="trainersList" class="card-list"></div>
+    </div>
+  </div>
+
+  <div id="planModal" class="modal" data-close="planModal">
+    <div class="modal-box">
+      <h3 id="planModalTitle">Add plan</h3>
+      <input type="hidden" id="planIndex" value="">
+      <div class="form-row"><label>Plan name</label><input type="text" id="planName" placeholder="e.g. 3 Months"></div>
+      <div class="form-row"><label>Price</label><input type="text" id="planPrice" placeholder="e.g. ₹6,000"></div>
+      <div class="form-row"><label>Original price (optional, for strikethrough)</label><input type="text" id="planOriginal" placeholder="e.g. ₹16,000 or leave blank"></div>
+      <div class="form-row"><label>Tagline</label><input type="text" id="planTagline" placeholder="e.g. Unlimited access"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="planSaveBtn">Save</button>
+        <button type="button" class="btn btn-outline" id="planCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="trainerModal" class="modal" data-close="trainerModal">
+    <div class="modal-box">
+      <h3 id="trainerModalTitle">Add trainer</h3>
+      <input type="hidden" id="trainerIndex" value="">
+      <div class="form-row"><label>Section</label><select id="trainerSection"><option value="elite">Elite Trainers</option><option value="certified">Certified Trainers</option></select></div>
+      <div class="form-row"><label>Full name</label><input type="text" id="trainerName" placeholder="Trainer name"></div>
+      <div class="form-row"><label>Role / credentials (one line)</label><input type="text" id="trainerRole" placeholder="e.g. CPR Certified • Certified Personal Trainer (IFSA)"></div>
+      <div class="form-row"><label>Bio (HTML allowed: &lt;span class="hl"&gt;highlight&lt;/span&gt;)</label><textarea id="trainerBio" placeholder="Short bio..."></textarea></div>
+      <div class="form-row"><label>Image path (e.g. ./images/name.jpg or leave blank)</label><input type="text" id="trainerImage" placeholder="./images/filename.jpg"></div>
+      <div class="form-row upload-row">
+        <label>Upload from device (camera or gallery)</label>
+        <input type="file" id="trainerImageUpload" accept="image/*" class="file-input">
+        <p class="form-hint">On mobile: tap to take a photo or choose from gallery. Image is resized to save space.</p>
+        <div id="trainerImagePreview" class="image-preview"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="trainerSaveBtn">Save</button>
+        <button type="button" class="btn btn-outline" id="trainerCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="passwordModal" class="modal">
+    <div class="modal-box">
+      <h3>Change password</h3>
+      <div class="form-row"><label>Current password</label><input type="password" id="currentPass" placeholder="Current password"></div>
+      <div class="form-row"><label>New password</label><input type="password" id="newPass" placeholder="New password"></div>
+      <div class="form-row"><label>Confirm new password</label><input type="password" id="confirmPass" placeholder="Confirm new password"></div>
+      <p id="passwordModalError" class="error" style="margin-top:8px;display:none"></p>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="passwordSaveBtn">Update password</button>
+        <button type="button" class="btn btn-outline" id="passwordCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+  (function(){
+    var ADMIN_PASS = 'flex2024';
+    var PASS_KEY = 'flexAdminPass';
+    var data = { pricing: [], trainers: [] };
+    var DEFAULT_DATA = { pricing: [{name:"3 Months",price:"₹6,000",originalPrice:null,tagline:"Unlimited access"},{name:"6 Months",price:"₹10,000",originalPrice:null,tagline:"Best for consistency"},{name:"1 Year",price:"₹14,000",originalPrice:"₹16,000",tagline:"Maximum savings"}], trainers: [] };
+    function getStoredPass(){ try { return localStorage.getItem(PASS_KEY) || ADMIN_PASS; } catch(e){ return ADMIN_PASS; } }
+    function setStoredPass(p){ try { localStorage.setItem(PASS_KEY, p); } catch(e){} }
+    function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+    function stripHtml(s){ return (s||'').replace(/<[^>]+>/g,'').trim(); }
+
+    function showToast(msg){
+      var el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(function(){ el.classList.remove('show'); }, 2500);
+    }
+
+    function checkAuth(){
+      try {
+        return sessionStorage.getItem('flexAdmin') === '1';
+      } catch(e){ return false; }
+    }
+    function setAuth(){
+      try { sessionStorage.setItem('flexAdmin', '1'); } catch(e){}
+    }
+    function clearAuth(){
+      try { sessionStorage.removeItem('flexAdmin'); } catch(e){}
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var pass = document.getElementById('adminPass').value;
+      var err = document.getElementById('loginError');
+      if (pass === getStoredPass()){
+        err.textContent = '';
+        setAuth();
+        document.getElementById('loginWrap').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        loadData();
+      } else {
+        err.textContent = 'Wrong password.';
+      }
+    });
+
+    document.querySelectorAll('.tab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+        document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+        tab.classList.add('active');
+        var id = tab.dataset.tab + 'Panel';
+        if (document.getElementById(id)) document.getElementById(id).classList.add('active');
+      });
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function(){ clearAuth(); location.reload(); });
+    document.getElementById('changePassBtn').addEventListener('click', function(){
+      document.getElementById('currentPass').value = '';
+      document.getElementById('newPass').value = '';
+      document.getElementById('confirmPass').value = '';
+      document.getElementById('passwordModalError').style.display = 'none';
+      document.getElementById('passwordModal').classList.add('open');
+    });
+    document.getElementById('passwordCancelBtn').addEventListener('click', function(){
+      document.getElementById('passwordModal').classList.remove('open');
+    });
+    document.getElementById('passwordSaveBtn').addEventListener('click', function(){
+      var current = document.getElementById('currentPass').value;
+      var newP = document.getElementById('newPass').value;
+      var confirmP = document.getElementById('confirmPass').value;
+      var errEl = document.getElementById('passwordModalError');
+      if (current !== getStoredPass()){ errEl.textContent = 'Current password is wrong.'; errEl.style.display = 'block'; return; }
+      if (newP.length < 4){ errEl.textContent = 'New password must be at least 4 characters.'; errEl.style.display = 'block'; return; }
+      if (newP !== confirmP){ errEl.textContent = 'New password and confirm do not match.'; errEl.style.display = 'block'; return; }
+      setStoredPass(newP);
+      errEl.style.display = 'none';
+      document.getElementById('passwordModal').classList.remove('open');
+      showToast('Password updated. Use the new password next time you log in.');
+    });
+    if (checkAuth()){
+      document.getElementById('loginWrap').style.display = 'none';
+      document.getElementById('adminPanel').style.display = 'block';
+      loadData();
+    }
+
+    function loadData(){
+      var summaryEl = document.getElementById('pricingSummary');
+      var trainersSumEl = document.getElementById('trainersSummary');
+      if (summaryEl) summaryEl.textContent = 'Loading…';
+      if (trainersSumEl) trainersSumEl.textContent = 'Loading…';
+      fetch('data.json').then(function(r){ return r.json(); }).then(function(d){
+        data = { pricing: d.pricing || [], trainers: d.trainers || [] };
+        renderPricing();
+        renderTrainers();
+      }).catch(function(){
+        data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
+        renderPricing();
+        renderTrainers();
+        showToast('Using default data. Load data.json if you have it.');
+      });
+    }
+
+    document.getElementById('loadFileBtn').addEventListener('click', function(){ document.getElementById('loadFile').click(); });
+    document.getElementById('loadFile').addEventListener('change', function(){
+      var f = this.files[0];
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function(){
+        try {
+          data = JSON.parse(r.result);
+          renderPricing();
+          renderTrainers();
+          showToast('Data loaded from file.');
+        } catch(e){ showToast('Invalid JSON file.'); }
+      };
+      r.readAsText(f);
+      this.value = '';
+    });
+
+    function renderPricing(){
+      var tbody = document.getElementById('pricingBody');
+      var cardsEl = document.getElementById('pricingCards');
+      var summaryEl = document.getElementById('pricingSummary');
+      if (summaryEl) summaryEl.textContent = data.pricing.length + ' plan' + (data.pricing.length !== 1 ? 's' : '');
+      tbody.innerHTML = data.pricing.map(function(p, i){
+        return '<tr><td><input type="text" value="' + esc(p.name) + '" data-i="' + i + '" data-field="name"></td>' +
+          '<td><input type="text" value="' + esc(p.price) + '" data-i="' + i + '" data-field="price"></td>' +
+          '<td><input type="text" value="' + (p.originalPrice ? esc(p.originalPrice) : '') + '" data-i="' + i + '" data-field="originalPrice" placeholder="optional"></td>' +
+          '<td><input type="text" value="' + esc(p.tagline) + '" data-i="' + i + '" data-field="tagline"></td>' +
+          '<td><button type="button" class="btn btn-sm btn-outline edit-plan" data-i="' + i + '">Edit</button> <button type="button" class="btn btn-danger btn-sm" data-remove-plan="' + i + '">Remove</button></td></tr>';
+      }).join('');
+      if (cardsEl) {
+        cardsEl.innerHTML = data.pricing.map(function(p, i){
+          var orig = p.originalPrice ? '<span class="plan-original">' + esc(p.originalPrice) + '</span>' : '';
+          return '<div class="pricing-card" data-i="' + i + '"><div class="plan-name">' + esc(p.name) + '</div><div class="plan-price">' + esc(p.price) + orig + '</div><div class="plan-tagline">' + esc(p.tagline) + '</div><div class="actions"><button type="button" class="btn btn-outline edit-plan-mobile" data-i="' + i + '">Edit</button><button type="button" class="btn btn-danger remove-plan-mobile" data-remove-plan="' + i + '">Remove</button></div></div>';
+        }).join('');
+        cardsEl.querySelectorAll('.edit-plan-mobile').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var i = parseInt(btn.dataset.i,10);
+            var p = data.pricing[i];
+            document.getElementById('planIndex').value = i;
+            document.getElementById('planModalTitle').textContent = 'Edit plan';
+            document.getElementById('planName').value = p.name || '';
+            document.getElementById('planPrice').value = p.price || '';
+            document.getElementById('planOriginal').value = p.originalPrice || '';
+            document.getElementById('planTagline').value = p.tagline || '';
+            document.getElementById('planModal').classList.add('open');
+          });
+        });
+        cardsEl.querySelectorAll('.remove-plan-mobile').forEach(function(btn){
+          btn.addEventListener('click', function(){ var i = parseInt(btn.dataset.removePlan,10); data.pricing.splice(i,1); renderPricing(); showToast('Plan removed.'); });
+        });
+      }
+      tbody.querySelectorAll('input').forEach(function(inp){
+        inp.addEventListener('change', function(){ var i = parseInt(this.dataset.i,10); var f = this.dataset.field; data.pricing[i][f] = this.value || null; if(f==='originalPrice'&&!this.value) data.pricing[i].originalPrice = null; });
+      });
+      tbody.querySelectorAll('.edit-plan').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var i = parseInt(btn.dataset.i,10);
+          var p = data.pricing[i];
+          document.getElementById('planIndex').value = i;
+          document.getElementById('planModalTitle').textContent = 'Edit plan';
+          document.getElementById('planName').value = p.name || '';
+          document.getElementById('planPrice').value = p.price || '';
+          document.getElementById('planOriginal').value = p.originalPrice || '';
+          document.getElementById('planTagline').value = p.tagline || '';
+          document.getElementById('planModal').classList.add('open');
+        });
+      });
+      tbody.querySelectorAll('[data-remove-plan]').forEach(function(btn){
+        btn.addEventListener('click', function(){ var i = parseInt(this.dataset.removePlan,10); data.pricing.splice(i,1); renderPricing(); showToast('Plan removed.'); });
+      });
+    }
+
+    document.getElementById('addPlanBtn').addEventListener('click', function(){
+      document.getElementById('planIndex').value = '-1';
+      document.getElementById('planModalTitle').textContent = 'Add plan';
+      document.getElementById('planName').value = '';
+      document.getElementById('planPrice').value = '₹0';
+      document.getElementById('planOriginal').value = '';
+      document.getElementById('planTagline').value = '';
+      document.getElementById('planModal').classList.add('open');
+    });
+    document.getElementById('planSaveBtn').addEventListener('click', function(){
+      var i = parseInt(document.getElementById('planIndex').value, 10);
+      var name = document.getElementById('planName').value.trim();
+      var price = document.getElementById('planPrice').value.trim();
+      var orig = document.getElementById('planOriginal').value.trim();
+      if (!name || !price) { showToast('Name and price required.'); return; }
+      if (i >= 0) {
+        data.pricing[i] = { name: name, price: price, originalPrice: orig || null, tagline: document.getElementById('planTagline').value.trim() || '' };
+      } else {
+        data.pricing.push({ name: name, price: price, originalPrice: orig || null, tagline: document.getElementById('planTagline').value.trim() || '' });
+      }
+      document.getElementById('planModal').classList.remove('open');
+      renderPricing();
+      showToast('Plan saved.');
+    });
+    document.getElementById('planCancelBtn').addEventListener('click', function(){
+      document.getElementById('planModal').classList.remove('open');
+    });
+
+    function renderTrainers(){
+      var list = document.getElementById('trainersList');
+      var summaryEl = document.getElementById('trainersSummary');
+      if (summaryEl) summaryEl.textContent = data.trainers.length + ' trainer' + (data.trainers.length !== 1 ? 's' : '');
+      list.innerHTML = data.trainers.map(function(t, i){
+        var bioText = stripHtml(t.bio || '').substring(0, 120);
+        if (stripHtml(t.bio || '').length > 120) bioText += '…';
+        var badgeClass = t.section === 'elite' ? 'elite' : 'certified';
+        var badgeLabel = t.section === 'elite' ? 'Elite' : 'Certified';
+        return '<div class="card-item" data-i="' + i + '">' +
+          '<span class="section-badge ' + badgeClass + '">' + badgeLabel + '</span>' +
+          '<h4>' + esc(t.name || 'Unnamed') + '</h4>' +
+          '<p class="role-full">' + esc(t.role || '') + '</p>' +
+          (bioText ? '<p class="bio-preview">' + esc(bioText) + '</p>' : '') +
+          '<div class="actions"><button type="button" class="btn btn-sm btn-outline edit-trainer" data-i="' + i + '">Edit</button><button type="button" class="btn btn-sm btn-danger remove-trainer" data-i="' + i + '">Remove</button></div></div>';
+      }).join('');
+      list.querySelectorAll('.edit-trainer').forEach(function(btn){
+        btn.addEventListener('click', function(){ openTrainerModal(parseInt(btn.dataset.i,10)); });
+      });
+      list.querySelectorAll('.remove-trainer').forEach(function(btn){
+        btn.addEventListener('click', function(){ var i = parseInt(btn.dataset.i,10); data.trainers.splice(i,1); renderTrainers(); showToast('Trainer removed.'); });
+      });
+    }
+
+    document.getElementById('addTrainerBtn').addEventListener('click', function(){
+      data.trainers.push({ section: 'certified', name: '', role: '', bio: '', image: null });
+      openTrainerModal(data.trainers.length - 1);
+    });
+
+    function showTrainerPreview(src){
+      var el = document.getElementById('trainerImagePreview');
+      if (!el) return;
+      if (src && (src.indexOf('data:') === 0 || src.indexOf('http') === 0 || src.indexOf('./') === 0)) {
+        el.innerHTML = '<span class="preview-label">Preview</span><img src="' + src.replace(/"/g,'&quot;') + '" alt="">';
+      } else if (src) {
+        el.innerHTML = '<span class="preview-label">Image set (path or uploaded)</span>';
+      } else {
+        el.innerHTML = '';
+      }
+    }
+    function openTrainerModal(i){
+      var t = data.trainers[i];
+      document.getElementById('trainerIndex').value = i;
+      document.getElementById('trainerModalTitle').textContent = i >= 0 && data.trainers[i].name ? 'Edit trainer' : 'Add trainer';
+      document.getElementById('trainerSection').value = t.section || 'certified';
+      document.getElementById('trainerName').value = t.name || '';
+      document.getElementById('trainerRole').value = t.role || '';
+      document.getElementById('trainerBio').value = t.bio || '';
+      document.getElementById('trainerImage').value = t.image || '';
+      document.getElementById('trainerImageUpload').value = '';
+      showTrainerPreview(t.image || '');
+      document.getElementById('trainerModal').classList.add('open');
+    }
+
+    document.getElementById('trainerImageUpload').addEventListener('change', function(){
+      var file = this.files && this.files[0];
+      if (!file || !file.type.match(/^image\//)) { showToast('Please choose an image file.'); return; }
+      var reader = new FileReader();
+      reader.onload = function(){
+        var dataUrl = reader.result;
+        var img = new Image();
+        img.onload = function(){
+          var maxW = 400;
+          if (img.width <= maxW && img.height <= maxW) {
+            document.getElementById('trainerImage').value = dataUrl;
+            showTrainerPreview(dataUrl);
+            showToast('Image added. Click Save to keep.');
+            return;
+          }
+          var c = document.createElement('canvas');
+          var scale = maxW / Math.max(img.width, img.height);
+          c.width = Math.round(img.width * scale);
+          c.height = Math.round(img.height * scale);
+          var ctx = c.getContext('2d');
+          ctx.drawImage(img, 0, 0, c.width, c.height);
+          var resized = c.toDataURL('image/jpeg', 0.85);
+          document.getElementById('trainerImage').value = resized;
+          showTrainerPreview(resized);
+          showToast('Image added (resized). Click Save to keep.');
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+      this.value = '';
+    });
+    document.getElementById('trainerSaveBtn').addEventListener('click', function(){
+      var i = parseInt(document.getElementById('trainerIndex').value, 10);
+      var t = data.trainers[i];
+      t.section = document.getElementById('trainerSection').value;
+      t.name = document.getElementById('trainerName').value.trim();
+      t.role = document.getElementById('trainerRole').value.trim();
+      t.bio = document.getElementById('trainerBio').value.trim();
+      var img = document.getElementById('trainerImage').value.trim();
+      t.image = img || null;
+      t.photoClass = t.photoClass || null;
+      document.getElementById('trainerModal').classList.remove('open');
+      renderTrainers();
+      showToast('Trainer saved.');
+    });
+    document.getElementById('trainerCancelBtn').addEventListener('click', function(){
+      document.getElementById('trainerModal').classList.remove('open');
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', function(){
+      var pricingRows = document.querySelectorAll('#pricingBody tr');
+      data.pricing = [];
+      pricingRows.forEach(function(tr){
+        var inps = tr.querySelectorAll('input[data-field]');
+        var row = {};
+        inps.forEach(function(inp){ row[inp.dataset.field] = inp.value.trim() || null; });
+        if (row.originalPrice === null || row.originalPrice === '') row.originalPrice = null;
+        data.pricing.push(row);
+      });
+      var json = JSON.stringify(data, null, 2);
+      var blob = new Blob([json], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'data.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showToast('data.json downloaded. Upload it to your site to apply changes.');
+    });
+  })();
+  </script>
+</body>
+</html>
