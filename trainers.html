@@ -209,7 +209,9 @@
     certifiedEl.innerHTML = list.filter(function(t){ return t.section === 'certified'; }).map(card).join('');
   }
   var dataUrl = (typeof FLEX_DATA_URL !== 'undefined' && FLEX_DATA_URL) ? (FLEX_DATA_URL + (FLEX_DATA_URL.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now()) : ('data.json?t=' + Date.now());
-  fetch(dataUrl).then(function(r){ return r.json(); }).then(function(data){
+  var fetchOpts = {};
+  if (dataUrl.indexOf('jsonbin.io') >= 0 && typeof FLEX_DATA_READ_KEY !== 'undefined' && FLEX_DATA_READ_KEY) fetchOpts.headers = { 'X-Master-Key': FLEX_DATA_READ_KEY };
+  fetch(dataUrl, fetchOpts).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(data){
     var d = data.record || data;
     render(d && d.trainers || fallbackTrainers);
   }).catch(function(){ render(fallbackTrainers); });
