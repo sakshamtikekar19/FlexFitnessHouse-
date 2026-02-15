@@ -139,7 +139,7 @@
     <div id="publishPanel" class="panel">
       <div class="cloud-publish">
         <h3 class="cloud-title">Publish to web (no file upload)</h3>
-        <p class="form-hint">6990ba6ad0ea881f40ba88da <strong>Bin ID</strong> and <strong>Access Key</strong> (from <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener">jsonbin.io/app/api-keys</a>). Click Save, then after editing pricing or trainers click <strong>Publish now</strong> to update the live site.</p>
+        <p class="form-hint">Enter your <strong>Bin ID</strong> and <strong>Access Key</strong> (from <a href="https://jsonbin.io/app/api-keys" target="_blank" rel="noopener">jsonbin.io/app/api-keys</a>). Click Save, then after editing pricing or trainers click <strong>Publish now</strong> to update the live site.</p>
         <div class="form-row inline-row">
           <label>Bin ID</label>
           <input type="text" id="jsonbinId" placeholder="e.g. 6990ba6ad0ea881f40ba88da">
@@ -329,6 +329,7 @@
         if (id) localStorage.setItem(JSONBIN_BIN, id); else localStorage.removeItem(JSONBIN_BIN);
         if (key) localStorage.setItem(JSONBIN_KEY, key); else localStorage.removeItem(JSONBIN_KEY);
         showToast('Saved. You can now use Publish now.');
+        if (id) loadData();
       } catch(e){ showToast('Could not save.'); }
     });
     document.getElementById('publishNowBtn').addEventListener('click', function(){
@@ -384,15 +385,33 @@
       var trainersSumEl = document.getElementById('trainersSummary');
       if (summaryEl) summaryEl.textContent = 'Loading…';
       if (trainersSumEl) trainersSumEl.textContent = 'Loading…';
-      fetch('data.json').then(function(r){ return r.json(); }).then(function(d){
+      var binId = (document.getElementById('jsonbinId') && document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
+      var dataUrl = binId ? ('https://api.jsonbin.io/v3/b/' + binId + '/latest?meta=false') : 'data.json';
+      fetch(dataUrl).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(raw){
+        var d = raw.record || raw;
         data = { pricing: d.pricing || [], trainers: d.trainers || [] };
         renderPricing();
         renderTrainers();
+        if (binId) showToast('Loaded from web (same as live site).');
       }).catch(function(){
-        data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
-        renderPricing();
-        renderTrainers();
-        showToast('Using default data. Use Import from file if you have data.json.');
+        if (binId) {
+          fetch('data.json').then(function(r){ return r.json(); }).then(function(d){
+            data = { pricing: d.pricing || [], trainers: d.trainers || [] };
+            renderPricing();
+            renderTrainers();
+            showToast('Could not load from web. Using data.json.');
+          }).catch(function(){
+            data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
+            renderPricing();
+            renderTrainers();
+            showToast('Using default data. Use Import from file if you have data.json.');
+          });
+        } else {
+          data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
+          renderPricing();
+          renderTrainers();
+          showToast('Using default data. Use Import from file if you have data.json.');
+        }
       });
     }
 
