@@ -336,13 +336,18 @@
       var binId = (document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
       var key = (document.getElementById('jsonbinKey').value || localStorage.getItem(JSONBIN_KEY) || '').trim();
       if (!binId || !key) { showToast('Enter Bin ID and Access Key, then Save.'); return; }
-      var publishData = { pricing: [], trainers: data.trainers };
+      var publishData = { pricing: [], trainers: [] };
       document.querySelectorAll('#pricingBody tr').forEach(function(tr){
         var inps = tr.querySelectorAll('input[data-field]');
         var row = {};
         inps.forEach(function(inp){ row[inp.dataset.field] = inp.value.trim() || null; });
         if (row.originalPrice === null || row.originalPrice === '') row.originalPrice = null;
         publishData.pricing.push(row);
+      });
+      data.trainers.forEach(function(t){
+        var img = t.image;
+        if (typeof img === 'string' && img.indexOf('data:') === 0) img = null;
+        publishData.trainers.push({ section: t.section, name: t.name, role: t.role, bio: t.bio, image: img || null, photoClass: t.photoClass || undefined });
       });
       var statusEl = document.getElementById('publishStatus');
       statusEl.style.display = 'block';
@@ -386,20 +391,16 @@
       if (summaryEl) summaryEl.textContent = 'Loading…';
       if (trainersSumEl) trainersSumEl.textContent = 'Loading…';
       var binId = (document.getElementById('jsonbinId') && document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
-      var dataUrl = binId ? ('https://api.jsonbin.io/v3/b/' + binId + '/latest?meta=false') : 'data.json';
-      fetch(dataUrl).then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(raw){
-        var d = raw.record || raw;
-        data = { pricing: d.pricing || [], trainers: d.trainers || [] };
-        renderPricing();
-        renderTrainers();
-        if (binId) showToast('Loaded from web (same as live site).');
+      function apply(d){ data = { pricing: d.pricing || [], trainers: d.trainers || [] }; renderPricing(); renderTrainers(); }
+      fetch('data.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
+        apply(d);
+        showToast('Loaded from data.json (' + (d.trainers && d.trainers.length) + ' trainers). Click Publish now to update live site.');
       }).catch(function(){
         if (binId) {
-          fetch('data.json').then(function(r){ return r.json(); }).then(function(d){
-            data = { pricing: d.pricing || [], trainers: d.trainers || [] };
-            renderPricing();
-            renderTrainers();
-            showToast('Could not load from web. Using data.json.');
+          fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest?meta=false').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(raw){
+            var d = raw.record || raw;
+            apply(d);
+            showToast('Loaded from web (data.json failed).');
           }).catch(function(){
             data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
             renderPricing();
