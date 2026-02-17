@@ -134,6 +134,7 @@
       <button type="button" class="tab" data-tab="publish">Publish to web</button>
       <button type="button" class="tab active" data-tab="pricing">Pricing</button>
       <button type="button" class="tab" data-tab="trainers">Trainers</button>
+      <button type="button" class="tab" data-tab="reviews">Reviews</button>
     </div>
 
     <div id="publishPanel" class="panel">
@@ -178,6 +179,13 @@
       <button type="button" class="btn btn-sm" id="addTrainerBtn">+ Add trainer</button>
       <div id="trainersList" class="card-list"></div>
     </div>
+
+    <div id="reviewsPanel" class="panel">
+      <p class="pricing-summary" id="reviewsSummary">—</p>
+      <p style="color:var(--muted);margin-bottom:16px">Add, edit, or remove reviews shown on the Reviews page. After saving, click <strong>Publish now</strong> to update the live site.</p>
+      <button type="button" class="btn btn-sm" id="addReviewBtn">+ Add review</button>
+      <div id="reviewsList" class="card-list"></div>
+    </div>
   </div>
 
   <div id="planModal" class="modal" data-close="planModal">
@@ -217,6 +225,21 @@
     </div>
   </div>
 
+  <div id="reviewModal" class="modal" data-close="reviewModal">
+    <div class="modal-box">
+      <h3 id="reviewModalTitle">Add review</h3>
+      <input type="hidden" id="reviewIndex" value="">
+      <div class="form-row"><label>Author name</label><input type="text" id="reviewName" placeholder="e.g. Saloni Mithagri"></div>
+      <div class="form-row"><label>Review text</label><textarea id="reviewText" placeholder="What the person said about the gym..."></textarea></div>
+      <div class="form-row"><label>Rating (1–5 stars)</label><select id="reviewRating"><option value="5">5 ★</option><option value="4">4 ★</option><option value="3">3 ★</option><option value="2">2 ★</option><option value="1">1 ★</option></select></div>
+      <div class="form-row"><label>Source</label><input type="text" id="reviewSource" placeholder="e.g. Google or Website"></div>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="reviewSaveBtn">Save</button>
+        <button type="button" class="btn btn-outline" id="reviewCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="passwordModal" class="modal">
     <div class="modal-box">
       <h3>Change password</h3>
@@ -237,8 +260,8 @@
   (function(){
     var ADMIN_PASS = 'flex2024';
     var PASS_KEY = 'flexAdminPass';
-    var data = { pricing: [], trainers: [] };
-    var DEFAULT_DATA = { pricing: [{name:"3 Months",price:"₹6,000",originalPrice:null,tagline:"Unlimited access"},{name:"6 Months",price:"₹10,000",originalPrice:null,tagline:"Best for consistency"},{name:"1 Year",price:"₹14,000",originalPrice:"₹16,000",tagline:"Maximum savings"}], trainers: [] };
+    var data = { pricing: [], trainers: [], reviews: [] };
+    var DEFAULT_DATA = { pricing: [{name:"3 Months",price:"₹6,000",originalPrice:null,tagline:"Unlimited access"},{name:"6 Months",price:"₹10,000",originalPrice:null,tagline:"Best for consistency"},{name:"1 Year",price:"₹14,000",originalPrice:"₹16,000",tagline:"Maximum savings"}], trainers: [], reviews: [] };
     function getStoredPass(){ try { return localStorage.getItem(PASS_KEY) || ADMIN_PASS; } catch(e){ return ADMIN_PASS; } }
     function setStoredPass(p){ try { localStorage.setItem(PASS_KEY, p); } catch(e){} }
     function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
@@ -336,7 +359,7 @@
       var binId = (document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
       var key = (document.getElementById('jsonbinKey').value || localStorage.getItem(JSONBIN_KEY) || '').trim();
       if (!binId || !key) { showToast('Enter Bin ID and Access Key, then Save.'); return; }
-      var publishData = { pricing: [], trainers: [] };
+      var publishData = { pricing: [], trainers: [], reviews: data.reviews || [] };
       document.querySelectorAll('#pricingBody tr').forEach(function(tr){
         var inps = tr.querySelectorAll('input[data-field]');
         var row = {};
@@ -391,7 +414,7 @@
       if (summaryEl) summaryEl.textContent = 'Loading…';
       if (trainersSumEl) trainersSumEl.textContent = 'Loading…';
       var binId = (document.getElementById('jsonbinId') && document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
-      function apply(d){ data = { pricing: d.pricing || [], trainers: d.trainers || [] }; renderPricing(); renderTrainers(); }
+      function apply(d){ data = { pricing: d.pricing || [], trainers: d.trainers || [], reviews: d.reviews || [] }; renderPricing(); renderTrainers(); renderReviews(); }
       fetch('data.json').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(d){
         apply(d);
         showToast('Loaded from data.json (' + (d.trainers && d.trainers.length) + ' trainers). Click Publish now to update live site.');
@@ -402,15 +425,17 @@
             apply(d);
             showToast('Loaded from web (data.json failed).');
           }).catch(function(){
-            data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
-            renderPricing();
-            renderTrainers();
-            showToast('Using default data. Use Import from file if you have data.json.');
-          });
+        data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice(), reviews: DEFAULT_DATA.reviews.slice() };
+        renderPricing();
+        renderTrainers();
+        renderReviews();
+        showToast('Using default data. Use Import from file if you have data.json.');
+      });
         } else {
-          data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice() };
+          data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice(), reviews: DEFAULT_DATA.reviews.slice() };
           renderPricing();
           renderTrainers();
+          renderReviews();
           showToast('Using default data. Use Import from file if you have data.json.');
         }
       });
@@ -423,9 +448,11 @@
       var r = new FileReader();
       r.onload = function(){
         try {
-          data = JSON.parse(r.result);
+          var parsed = JSON.parse(r.result);
+          data = { pricing: parsed.pricing || [], trainers: parsed.trainers || [], reviews: parsed.reviews || [] };
           renderPricing();
           renderTrainers();
+          renderReviews();
           showToast('Data loaded from file.');
         } catch(e){ showToast('Invalid JSON file.'); }
       };
@@ -617,6 +644,67 @@
     });
     document.getElementById('trainerCancelBtn').addEventListener('click', function(){
       document.getElementById('trainerModal').classList.remove('open');
+    });
+
+    function renderReviews(){
+      var list = document.getElementById('reviewsList');
+      var summaryEl = document.getElementById('reviewsSummary');
+      if (!list) return;
+      if (summaryEl) summaryEl.textContent = (data.reviews && data.reviews.length) + ' review' + (data.reviews && data.reviews.length !== 1 ? 's' : '');
+      data.reviews = data.reviews || [];
+      list.innerHTML = data.reviews.map(function(r, i){
+        var snippet = (r.text || '').substring(0, 80);
+        if ((r.text || '').length > 80) snippet += '…';
+        var stars = '';
+        for (var s = 0; s < 5; s++) stars += s < (r.rating || 5) ? '★' : '☆';
+        return '<div class="card-item" data-i="' + i + '">' +
+          '<p class="meta">' + stars + ' · ' + esc(r.source || '') + '</p>' +
+          '<h4>' + esc(r.name || 'Anonymous') + '</h4>' +
+          '<p class="bio-preview">' + esc(snippet) + '</p>' +
+          '<div class="actions"><button type="button" class="btn btn-sm btn-outline edit-review" data-i="' + i + '">Edit</button><button type="button" class="btn btn-sm btn-danger remove-review" data-i="' + i + '">Remove</button></div></div>';
+      }).join('');
+      list.querySelectorAll('.edit-review').forEach(function(btn){
+        btn.addEventListener('click', function(){ openReviewModal(parseInt(btn.dataset.i,10)); });
+      });
+      list.querySelectorAll('.remove-review').forEach(function(btn){
+        btn.addEventListener('click', function(){ var i = parseInt(btn.dataset.i,10); data.reviews.splice(i,1); renderReviews(); showToast('Review removed.'); });
+      });
+    }
+    function openReviewModal(i){
+      var r = data.reviews[i] || {};
+      document.getElementById('reviewIndex').value = i;
+      document.getElementById('reviewModalTitle').textContent = (i >= 0 && (data.reviews[i] && data.reviews[i].name)) ? 'Edit review' : 'Add review';
+      document.getElementById('reviewName').value = r.name || '';
+      document.getElementById('reviewText').value = r.text || '';
+      document.getElementById('reviewRating').value = r.rating || 5;
+      document.getElementById('reviewSource').value = r.source || 'Google';
+      document.getElementById('reviewModal').classList.add('open');
+    }
+    document.getElementById('addReviewBtn').addEventListener('click', function(){
+      data.reviews = data.reviews || [];
+      document.getElementById('reviewIndex').value = -1;
+      document.getElementById('reviewModalTitle').textContent = 'Add review';
+      document.getElementById('reviewName').value = '';
+      document.getElementById('reviewText').value = '';
+      document.getElementById('reviewRating').value = 5;
+      document.getElementById('reviewSource').value = 'Google';
+      document.getElementById('reviewModal').classList.add('open');
+    });
+    document.getElementById('reviewSaveBtn').addEventListener('click', function(){
+      var i = parseInt(document.getElementById('reviewIndex').value, 10);
+      var name = document.getElementById('reviewName').value.trim();
+      var text = document.getElementById('reviewText').value.trim();
+      if (!text) { showToast('Review text is required.'); return; }
+      var rating = parseInt(document.getElementById('reviewRating').value, 10) || 5;
+      var source = document.getElementById('reviewSource').value.trim() || 'Google';
+      var rev = { name: name || 'Member', text: text, rating: rating, source: source };
+      if (i >= 0) data.reviews[i] = rev; else data.reviews.push(rev);
+      document.getElementById('reviewModal').classList.remove('open');
+      renderReviews();
+      showToast('Review saved.');
+    });
+    document.getElementById('reviewCancelBtn').addEventListener('click', function(){
+      document.getElementById('reviewModal').classList.remove('open');
     });
 
     document.getElementById('exportBtn').addEventListener('click', function(){

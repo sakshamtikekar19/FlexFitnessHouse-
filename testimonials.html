@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Reviews & Testimonials | Flex Fitness House Gym • Dombivli</title>
+  <script src="config.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -446,17 +447,34 @@
   function renderCard(t){
     var card = document.createElement('article');
     card.className = 'testimonial-card';
-    card.innerHTML = '<div class="testimonial-stars" aria-hidden="true">'+starStr(t.rating)+'</div>' +
-      '<p class="testimonial-text">'+t.text.replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>' +
+    card.innerHTML = '<div class="testimonial-stars" aria-hidden="true">'+starStr(t.rating||5)+'</div>' +
+      '<p class="testimonial-text">'+(t.text||'').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</p>' +
       '<p class="testimonial-author">— '+(t.name||'Member')+'</p>' +
-      '<p class="testimonial-source">Website</p>';
+      '<p class="testimonial-source">'+(t.source||'Website')+'</p>';
     return card;
   }
   function loadStored(){
     var list = getStored();
     list.forEach(function(t){ grid.appendChild(renderCard(t)); });
   }
-  loadStored();
+  var dataUrl = (typeof FLEX_DATA_URL !== 'undefined' && FLEX_DATA_URL) ? (FLEX_DATA_URL + (FLEX_DATA_URL.indexOf('?') >= 0 ? '&' : '?') + 't=' + Date.now()) : ('data.json?t=' + Date.now());
+  fetch(dataUrl).then(function(r){ if (!r.ok) throw new Error(); return r.json(); }).then(function(raw){
+    var d = raw.record || raw;
+    if (d.reviews && d.reviews.length > 0) {
+      grid.innerHTML = '';
+      d.reviews.forEach(function(r){ grid.appendChild(renderCard(r)); });
+    }
+    loadStored();
+    var btn = document.getElementById('seeMoreBtn');
+    if (btn) {
+      var cards = grid.querySelectorAll('.testimonial-card');
+      for (var i = 0; i < cards.length; i++) {
+        if (i < 5) cards[i].classList.remove('review-more');
+        else cards[i].classList.add('review-more');
+      }
+      btn.style.display = cards.length <= 5 ? 'none' : 'inline-block';
+    }
+  }).catch(function(){ loadStored(); });
 
   (function(){
     var REVIEWS_PER_PAGE = 5;
