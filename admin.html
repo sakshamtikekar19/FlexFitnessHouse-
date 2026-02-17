@@ -631,30 +631,37 @@
     document.getElementById('trainerImageUploadWebBtn').addEventListener('click', function(){
       var dataUrl = (document.getElementById('trainerImage').value || '').trim();
       if (dataUrl.indexOf('data:') !== 0) { showToast('No uploaded photo. Choose a photo first.'); return; }
-      var apiKey = (document.getElementById('imgbbKey') && document.getElementById('imgbbKey').value) || (function(){ try { return localStorage.getItem(IMGBB_KEY); } catch(e){ return ''; } })();
-      if (!apiKey || !apiKey.trim()) { showToast('Set ImgBB API key in Publish to web tab first (one-time).'); return; }
+      var apiKey = '';
+      try { apiKey = (localStorage.getItem(IMGBB_KEY) || '').trim(); } catch(e){}
+      if (!apiKey) { showToast('Save your ImgBB API key in Publish to web tab first (one-time).'); return; }
       var comma = dataUrl.indexOf(',');
       var base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
       var btn = document.getElementById('trainerImageUploadWebBtn');
       var origText = btn.textContent;
       btn.textContent = 'Uploading…';
       btn.disabled = true;
-      fetch('https://api.imgbb.com/1/upload?key=' + encodeURIComponent(apiKey.trim()), {
+      var form = new FormData();
+      form.append('key', apiKey);
+      form.append('image', base64);
+      fetch('https://api.imgbb.com/1/upload', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'image=' + encodeURIComponent(base64)
-      }).then(function(r){ return r.json(); }).then(function(res){
+        body: form
+      }).then(function(r){ return r.json().then(function(res){ return { ok: r.ok, res: res }; }); }).then(function(obj){
         btn.textContent = origText;
         btn.disabled = false;
+        var res = obj.res;
         if (res && res.data && res.data.url) {
           document.getElementById('trainerImage').value = res.data.url;
           showTrainerPreview(res.data.url);
           showToast('Image uploaded. Save trainer and Publish now.');
-        } else { showToast(res && res.error && res.error.message ? res.error.message : 'Upload failed.'); }
+        } else {
+          var msg = (res && res.error && res.error.message) ? res.error.message : (res && res.data && res.data.error && res.data.error.message) ? res.data.error.message : 'Upload failed. Check API key in Publish to web tab.';
+          showToast(msg);
+        }
       }).catch(function(){
         btn.textContent = origText;
         btn.disabled = false;
-        showToast('Upload failed. Check API key and connection.');
+        showToast('Upload failed. Check connection and API key.');
       });
     });
     document.getElementById('trainerImageDownloadBtn').addEventListener('click', function(){
