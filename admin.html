@@ -370,7 +370,6 @@
         if (id) localStorage.setItem(JSONBIN_BIN, id); else localStorage.removeItem(JSONBIN_BIN);
         if (key) localStorage.setItem(JSONBIN_KEY, key); else localStorage.removeItem(JSONBIN_KEY);
         showToast('Saved. You can now use Publish now.');
-        if (id) loadData();
       } catch(e){ showToast('Could not save.'); }
     });
     document.getElementById('saveImgbbKey').addEventListener('click', function(){
@@ -406,7 +405,15 @@
         headers: { 'Content-Type': 'application/json', 'X-Master-Key': key, 'X-Bin-Versioning': 'true' },
         body: JSON.stringify(publishData)
       }).then(function(r){
-        if (r.ok) { statusEl.textContent = 'Published! Your site will show changes after refresh.'; statusEl.style.color = 'var(--cta)'; showToast('Published to web.'); }
+        if (r.ok) {
+          statusEl.textContent = 'Published! Your site will show changes after refresh.'; statusEl.style.color = 'var(--cta)'; showToast('Published to web.');
+          data.pricing = publishData.pricing;
+          data.trainers = publishData.trainers;
+          data.reviews = publishData.reviews;
+          renderPricing();
+          renderTrainers();
+          renderReviews();
+        }
         else return r.json().then(function(e){ throw new Error(e.message || 'Publish failed'); });
       }).catch(function(e){ statusEl.textContent = 'Error: ' + (e.message || 'Check Bin ID and Key'); statusEl.style.color = '#e74'; });
     });
