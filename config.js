@@ -9,4 +9,4 @@ var FLEX_DATA_READ_KEY = '';
 // Visitor-submitted reviews (JSONBin): create a second bin at jsonbin.io with content {"reviews":[]}, make it public, copy its "latest" URL below.
 // Then deploy the repo to Vercel and set env vars JSONBIN_SUBMITTED_BIN_ID + JSONBIN_MASTER_KEY; set SUBMIT_REVIEW_API_URL to your Vercel URL + /api/submit-review
 var SUBMITTED_REVIEWS_BIN_URL = 'https://api.jsonbin.io/v3/b/699dad8bd0ea881f40d5163b/latest?meta=false';
-var SUBMIT_REVIEW_API_URL = null;     // set after deploying to Vercel, e.g. 'https://your-project.vercel.app/api/submit-review'
+var SUBMIT_REVIEW_API_URL = 'https://flex-fitness-house.vercel.app/api/submit-review';
