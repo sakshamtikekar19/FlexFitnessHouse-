@@ -135,6 +135,7 @@
       <button type="button" class="tab active" data-tab="pricing">Pricing</button>
       <button type="button" class="tab" data-tab="trainers">Trainers</button>
       <button type="button" class="tab" data-tab="reviews">Reviews</button>
+      <button type="button" class="tab" data-tab="transformations">Transformations</button>
     </div>
 
     <div id="publishPanel" class="panel">
@@ -192,6 +193,13 @@
       <p style="color:var(--muted);margin-bottom:16px">Add, edit, or remove reviews shown on the Reviews page. After saving, click <strong>Publish now</strong> to update the live site.</p>
       <button type="button" class="btn btn-sm" id="addReviewBtn">+ Add review</button>
       <div id="reviewsList" class="card-list"></div>
+    </div>
+
+    <div id="transformationsPanel" class="panel">
+      <p class="pricing-summary" id="transformationsSummary">—</p>
+      <p style="color:var(--muted);margin-bottom:16px">Add before/after or single transformation photos for the Transformations page. Use image paths (e.g. ./images/transform1.jpg) or Upload to web with ImgBB. Then <strong>Publish now</strong>.</p>
+      <button type="button" class="btn btn-sm" id="addTransformBtn">+ Add transformation</button>
+      <div id="transformationsList" class="card-list"></div>
     </div>
   </div>
 
@@ -255,6 +263,40 @@
     </div>
   </div>
 
+  <div id="transformModal" class="modal" data-close="transformModal">
+    <div class="modal-box">
+      <h3 id="transformModalTitle">Add transformation</h3>
+      <input type="hidden" id="transformIndex" value="">
+      <div class="form-row"><label>Member name</label><input type="text" id="transformName" placeholder="e.g. Member name or Anonymous"></div>
+      <div class="form-row"><label>Caption (e.g. duration)</label><input type="text" id="transformCaption" placeholder="e.g. 6 months"></div>
+      <div class="form-row"><label>Before image (path or URL)</label><input type="text" id="transformBefore" placeholder="./images/before.jpg or paste ImgBB URL"></div>
+      <div class="form-row upload-row">
+        <label>Upload before photo</label>
+        <div class="file-input-wrap">
+          <input type="file" id="transformBeforeUpload" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" class="file-input">
+          <button type="button" class="btn btn-sm btn-outline" id="transformBeforeChooseBtn" style="margin-top:8px">Choose before photo</button>
+          <button type="button" class="btn btn-sm" id="transformBeforeUploadWebBtn" style="margin-top:8px;margin-left:8px;display:none">Upload to web</button>
+        </div>
+        <div id="transformBeforePreview" class="image-preview"></div>
+      </div>
+      <div class="form-row"><label>After image (path or URL)</label><input type="text" id="transformAfter" placeholder="./images/after.jpg or paste ImgBB URL"></div>
+      <div class="form-row upload-row">
+        <label>Upload after photo</label>
+        <div class="file-input-wrap">
+          <input type="file" id="transformAfterUpload" accept="image/jpeg,image/png,image/webp,image/gif,.jpg,.jpeg,.png,.webp,.gif" class="file-input">
+          <button type="button" class="btn btn-sm btn-outline" id="transformAfterChooseBtn" style="margin-top:8px">Choose after photo</button>
+          <button type="button" class="btn btn-sm" id="transformAfterUploadWebBtn" style="margin-top:8px;margin-left:8px;display:none">Upload to web</button>
+        </div>
+        <div id="transformAfterPreview" class="image-preview"></div>
+      </div>
+      <p class="form-hint">Use both for before/after, or only one for a single photo. Choose a photo then click <strong>Upload to web</strong> (uses ImgBB key from Publish to web tab).</p>
+      <div class="modal-actions">
+        <button type="button" class="btn" id="transformSaveBtn">Save</button>
+        <button type="button" class="btn btn-outline" id="transformCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <div id="passwordModal" class="modal">
     <div class="modal-box">
       <h3>Change password</h3>
@@ -275,8 +317,8 @@
   (function(){
     var ADMIN_PASS = 'flex2024';
     var PASS_KEY = 'flexAdminPass';
-    var data = { pricing: [], trainers: [], reviews: [] };
-    var DEFAULT_DATA = { pricing: [{name:"3 Months",price:"₹6,000",originalPrice:null,tagline:"Unlimited access"},{name:"6 Months",price:"₹10,000",originalPrice:null,tagline:"Best for consistency"},{name:"1 Year",price:"₹14,000",originalPrice:"₹16,000",tagline:"Maximum savings"}], trainers: [], reviews: [] };
+    var data = { pricing: [], trainers: [], reviews: [], transformations: [] };
+    var DEFAULT_DATA = { pricing: [{name:"3 Months",price:"₹6,000",originalPrice:null,tagline:"Unlimited access"},{name:"6 Months",price:"₹10,000",originalPrice:null,tagline:"Best for consistency"},{name:"1 Year",price:"₹14,000",originalPrice:"₹16,000",tagline:"Maximum savings"}], trainers: [], reviews: [], transformations: [] };
     function getStoredPass(){ try { return localStorage.getItem(PASS_KEY) || ADMIN_PASS; } catch(e){ return ADMIN_PASS; } }
     function setStoredPass(p){ try { localStorage.setItem(PASS_KEY, p); } catch(e){} }
     function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
@@ -383,7 +425,7 @@
       var binId = (document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
       var key = (document.getElementById('jsonbinKey').value || localStorage.getItem(JSONBIN_KEY) || '').trim();
       if (!binId || !key) { showToast('Enter Bin ID and Access Key, then Save.'); return; }
-      var publishData = { pricing: [], trainers: [], reviews: data.reviews || [] };
+      var publishData = { pricing: [], trainers: [], reviews: data.reviews || [], transformations: [] };
       document.querySelectorAll('#pricingBody tr').forEach(function(tr){
         var inps = tr.querySelectorAll('input[data-field]');
         var row = {};
@@ -395,6 +437,11 @@
         var img = t.image;
         if (typeof img === 'string' && img.indexOf('data:') === 0) img = null;
         publishData.trainers.push({ section: t.section, name: t.name, role: t.role, bio: t.bio, image: img || null, photoClass: t.photoClass || undefined });
+      });
+      (data.transformations || []).forEach(function(t){
+        var before = (t.before && typeof t.before === 'string' && t.before.indexOf('data:') === 0) ? null : (t.before || null);
+        var after = (t.after && typeof t.after === 'string' && t.after.indexOf('data:') === 0) ? null : (t.after || null);
+        publishData.transformations.push({ name: t.name || '', caption: t.caption || '', before: before, after: after });
       });
       var statusEl = document.getElementById('publishStatus');
       statusEl.style.display = 'block';
@@ -410,9 +457,11 @@
           data.pricing = publishData.pricing;
           data.trainers = publishData.trainers;
           data.reviews = publishData.reviews;
+          data.transformations = publishData.transformations;
           renderPricing();
           renderTrainers();
           renderReviews();
+          renderTransformations();
         }
         else return r.json().then(function(e){ throw new Error(e.message || 'Publish failed'); });
       }).catch(function(e){ statusEl.textContent = 'Error: ' + (e.message || 'Check Bin ID and Key'); statusEl.style.color = '#e74'; });
@@ -443,10 +492,12 @@
     function loadData(){
       var summaryEl = document.getElementById('pricingSummary');
       var trainersSumEl = document.getElementById('trainersSummary');
+      var transformsSumEl = document.getElementById('transformationsSummary');
       if (summaryEl) summaryEl.textContent = 'Loading…';
       if (trainersSumEl) trainersSumEl.textContent = 'Loading…';
+      if (transformsSumEl) transformsSumEl.textContent = 'Loading…';
       var binId = (document.getElementById('jsonbinId') && document.getElementById('jsonbinId').value || localStorage.getItem(JSONBIN_BIN) || '').trim();
-      function apply(d){ data = { pricing: d.pricing || [], trainers: d.trainers || [], reviews: d.reviews || [] }; renderPricing(); renderTrainers(); renderReviews(); }
+      function apply(d){ data = { pricing: d.pricing || [], trainers: d.trainers || [], reviews: d.reviews || [], transformations: d.transformations || [] }; renderPricing(); renderTrainers(); renderReviews(); renderTransformations(); }
       if (binId) {
         fetch('https://api.jsonbin.io/v3/b/' + binId + '/latest?meta=false').then(function(r){ if (!r.ok) throw new Error(r.status); return r.json(); }).then(function(raw){
           var d = raw.record || raw;
@@ -457,10 +508,11 @@
             apply(d);
             showToast('Loaded from data.json (JSONBin failed). Click Publish now to update live site.');
           }).catch(function(){
-            data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice(), reviews: DEFAULT_DATA.reviews.slice() };
+            data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice(), reviews: DEFAULT_DATA.reviews.slice(), transformations: (DEFAULT_DATA.transformations && DEFAULT_DATA.transformations.slice()) || [] };
             renderPricing();
             renderTrainers();
             renderReviews();
+            renderTransformations();
             showToast('Using default data. Use Import from file if you have data.json.');
           });
         });
@@ -469,10 +521,11 @@
           apply(d);
           showToast('Loaded from data.json (' + (d.trainers && d.trainers.length) + ' trainers). Click Publish now to update live site.');
         }).catch(function(){
-          data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice(), reviews: DEFAULT_DATA.reviews.slice() };
+          data = { pricing: DEFAULT_DATA.pricing.slice(), trainers: DEFAULT_DATA.trainers.slice(), reviews: DEFAULT_DATA.reviews.slice(), transformations: (DEFAULT_DATA.transformations && DEFAULT_DATA.transformations.slice()) || [] };
           renderPricing();
           renderTrainers();
           renderReviews();
+          renderTransformations();
           showToast('Using default data. Use Import from file if you have data.json.');
         });
       }
@@ -486,10 +539,11 @@
       r.onload = function(){
         try {
           var parsed = JSON.parse(r.result);
-          data = { pricing: parsed.pricing || [], trainers: parsed.trainers || [], reviews: parsed.reviews || [] };
+          data = { pricing: parsed.pricing || [], trainers: parsed.trainers || [], reviews: parsed.reviews || [], transformations: parsed.transformations || [] };
           renderPricing();
           renderTrainers();
           renderReviews();
+          renderTransformations();
           showToast('Data loaded from file.');
         } catch(e){ showToast('Invalid JSON file.'); }
       };
@@ -819,6 +873,187 @@
     });
     document.getElementById('reviewCancelBtn').addEventListener('click', function(){
       document.getElementById('reviewModal').classList.remove('open');
+    });
+
+    function renderTransformations(){
+      var list = document.getElementById('transformationsList');
+      var summaryEl = document.getElementById('transformationsSummary');
+      if (!list) return;
+      data.transformations = data.transformations || [];
+      if (summaryEl) summaryEl.textContent = data.transformations.length + ' transformation' + (data.transformations.length !== 1 ? 's' : '');
+      list.innerHTML = data.transformations.map(function(t, i){
+        var label = (t.before && t.after) ? 'Before/After' : (t.before || t.after) ? 'Single' : '—';
+        return '<div class="card-item" data-i="' + i + '">' +
+          '<p class="meta">' + esc(label) + '</p>' +
+          '<h4>' + esc(t.name || 'Untitled') + '</h4>' +
+          '<p class="bio-preview">' + esc((t.caption || '').substring(0, 60)) + (t.caption && t.caption.length > 60 ? '…' : '') + '</p>' +
+          '<div class="actions"><button type="button" class="btn btn-sm btn-outline edit-transform" data-i="' + i + '">Edit</button><button type="button" class="btn btn-sm btn-danger remove-transform" data-i="' + i + '">Remove</button></div></div>';
+      }).join('');
+      list.querySelectorAll('.edit-transform').forEach(function(btn){
+        btn.addEventListener('click', function(){ openTransformModal(parseInt(btn.dataset.i, 10)); });
+      });
+      list.querySelectorAll('.remove-transform').forEach(function(btn){
+        btn.addEventListener('click', function(){ var i = parseInt(btn.dataset.i, 10); data.transformations.splice(i, 1); renderTransformations(); showToast('Transformation removed.'); });
+      });
+    }
+    function showTransformBeforePreview(src){
+      var el = document.getElementById('transformBeforePreview');
+      var btn = document.getElementById('transformBeforeUploadWebBtn');
+      var isDataUrl = src && (typeof src === 'string') && src.indexOf('data:') === 0;
+      if (btn) btn.style.display = isDataUrl ? 'inline-block' : 'none';
+      if (!el) return;
+      if (src && (src.indexOf('data:') === 0 || src.indexOf('http') === 0 || src.indexOf('./') === 0)) {
+        el.innerHTML = '<span class="preview-label">Preview</span><img src="' + (src || '').replace(/"/g, '&quot;') + '" alt="">';
+      } else el.innerHTML = '';
+    }
+    function showTransformAfterPreview(src){
+      var el = document.getElementById('transformAfterPreview');
+      var btn = document.getElementById('transformAfterUploadWebBtn');
+      var isDataUrl = src && (typeof src === 'string') && src.indexOf('data:') === 0;
+      if (btn) btn.style.display = isDataUrl ? 'inline-block' : 'none';
+      if (!el) return;
+      if (src && (src.indexOf('data:') === 0 || src.indexOf('http') === 0 || src.indexOf('./') === 0)) {
+        el.innerHTML = '<span class="preview-label">Preview</span><img src="' + (src || '').replace(/"/g, '&quot;') + '" alt="">';
+      } else el.innerHTML = '';
+    }
+    function openTransformModal(i){
+      var t = data.transformations[i] || {};
+      document.getElementById('transformIndex').value = i;
+      document.getElementById('transformModalTitle').textContent = (i >= 0 && data.transformations[i]) ? 'Edit transformation' : 'Add transformation';
+      document.getElementById('transformName').value = t.name || '';
+      document.getElementById('transformCaption').value = t.caption || '';
+      document.getElementById('transformBefore').value = t.before || '';
+      document.getElementById('transformAfter').value = t.after || '';
+      document.getElementById('transformBeforeUpload').value = '';
+      document.getElementById('transformAfterUpload').value = '';
+      showTransformBeforePreview(t.before || '');
+      showTransformAfterPreview(t.after || '');
+      document.getElementById('transformModal').classList.add('open');
+    }
+    document.getElementById('addTransformBtn').addEventListener('click', function(){
+      data.transformations = data.transformations || [];
+      document.getElementById('transformIndex').value = -1;
+      document.getElementById('transformModalTitle').textContent = 'Add transformation';
+      document.getElementById('transformName').value = '';
+      document.getElementById('transformCaption').value = '';
+      document.getElementById('transformBefore').value = '';
+      document.getElementById('transformAfter').value = '';
+      document.getElementById('transformModal').classList.add('open');
+    });
+    document.getElementById('transformSaveBtn').addEventListener('click', function(){
+      var i = parseInt(document.getElementById('transformIndex').value, 10);
+      var name = document.getElementById('transformName').value.trim() || 'Member';
+      var caption = document.getElementById('transformCaption').value.trim() || '';
+      var before = document.getElementById('transformBefore').value.trim() || null;
+      var after = document.getElementById('transformAfter').value.trim() || null;
+      var item = { name: name, caption: caption, before: before, after: after };
+      if (i >= 0) data.transformations[i] = item; else data.transformations.push(item);
+      document.getElementById('transformModal').classList.remove('open');
+      renderTransformations();
+      showToast('Transformation saved.');
+    });
+    document.getElementById('transformCancelBtn').addEventListener('click', function(){
+      document.getElementById('transformModal').classList.remove('open');
+    });
+
+    document.getElementById('transformBeforeChooseBtn').addEventListener('click', function(){ document.getElementById('transformBeforeUpload').click(); });
+    document.getElementById('transformAfterChooseBtn').addEventListener('click', function(){ document.getElementById('transformAfterUpload').click(); });
+
+    function processTransformImage(fileInput, targetInputId, showPreviewFn, label){
+      var file = fileInput.files && fileInput.files[0];
+      if (!file) return;
+      if (!file.type.match(/^image\//)) { showToast('Please choose an image (JPEG, PNG, WebP or GIF).'); fileInput.value = ''; return; }
+      var reader = new FileReader();
+      reader.onerror = function(){ showToast('Could not read file.'); fileInput.value = ''; };
+      reader.onload = function(){
+        var dataUrl = reader.result;
+        var img = new Image();
+        img.onerror = function(){
+          document.getElementById(targetInputId).value = dataUrl;
+          showPreviewFn(dataUrl);
+          showToast(label + ' added. Click Upload to web then Save.');
+          fileInput.value = '';
+        };
+        img.onload = function(){
+          var maxW = 500;
+          if (img.width <= maxW && img.height <= maxW) {
+            document.getElementById(targetInputId).value = dataUrl;
+            showPreviewFn(dataUrl);
+            showToast(label + ' added. Click Upload to web then Save.');
+            fileInput.value = '';
+            return;
+          }
+          try {
+            var c = document.createElement('canvas');
+            var scale = maxW / Math.max(img.width, img.height);
+            c.width = Math.round(img.width * scale);
+            c.height = Math.round(img.height * scale);
+            var ctx = c.getContext('2d');
+            ctx.drawImage(img, 0, 0, c.width, c.height);
+            var resized = c.toDataURL('image/jpeg', 0.85);
+            document.getElementById(targetInputId).value = resized;
+            showPreviewFn(resized);
+            showToast(label + ' added (resized). Click Upload to web then Save.');
+          } catch (e) {
+            document.getElementById(targetInputId).value = dataUrl;
+            showPreviewFn(dataUrl);
+            showToast(label + ' added. Click Upload to web then Save.');
+          }
+          fileInput.value = '';
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    }
+    document.getElementById('transformBeforeUpload').addEventListener('change', function(){
+      processTransformImage(this, 'transformBefore', showTransformBeforePreview, 'Before photo');
+    });
+    document.getElementById('transformAfterUpload').addEventListener('change', function(){
+      processTransformImage(this, 'transformAfter', showTransformAfterPreview, 'After photo');
+    });
+
+    function uploadTransformToImgBB(inputId, showPreviewFn){
+      var dataUrl = (document.getElementById(inputId).value || '').trim();
+      if (dataUrl.indexOf('data:') !== 0) { showToast('Choose a photo first, then click Upload to web.'); return; }
+      var apiKey = '';
+      try { apiKey = (localStorage.getItem(IMGBB_KEY) || '').trim(); } catch(e){}
+      if (!apiKey) { showToast('Save your ImgBB API key in Publish to web tab first.'); return; }
+      var comma = dataUrl.indexOf(',');
+      var base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+      var btnId = inputId === 'transformBefore' ? 'transformBeforeUploadWebBtn' : 'transformAfterUploadWebBtn';
+      var btn = document.getElementById(btnId);
+      var origText = btn.textContent;
+      btn.textContent = 'Uploading…';
+      btn.disabled = true;
+      var form = new FormData();
+      form.append('key', apiKey);
+      form.append('image', base64);
+      fetch('https://api.imgbb.com/1/upload', { method: 'POST', body: form })
+        .then(function(r){ return r.json().then(function(res){ return { ok: r.ok, res: res }; }); })
+        .then(function(obj){
+          btn.textContent = origText;
+          btn.disabled = false;
+          var res = obj.res;
+          if (res && res.data && res.data.url) {
+            document.getElementById(inputId).value = res.data.url;
+            showPreviewFn(res.data.url);
+            showToast('Image uploaded to ImgBB. Save transformation and Publish now.');
+          } else {
+            var msg = (res && res.error && res.error.message) ? res.error.message : (res && res.data && res.data.error && res.data.error.message) ? res.data.error.message : 'Upload failed. Check API key.';
+            showToast(msg);
+          }
+        })
+        .catch(function(){
+          btn.textContent = origText;
+          btn.disabled = false;
+          showToast('Upload failed. Check connection and API key.');
+        });
+    }
+    document.getElementById('transformBeforeUploadWebBtn').addEventListener('click', function(){
+      uploadTransformToImgBB('transformBefore', showTransformBeforePreview);
+    });
+    document.getElementById('transformAfterUploadWebBtn').addEventListener('click', function(){
+      uploadTransformToImgBB('transformAfter', showTransformAfterPreview);
     });
 
     document.getElementById('exportBtn').addEventListener('click', function(){
