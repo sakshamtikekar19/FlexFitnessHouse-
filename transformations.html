@@ -70,13 +70,20 @@
     .transform-card:hover{border-color:rgba(201,162,39,.25);box-shadow:0 12px 32px rgba(0,0,0,.3)}
     .transform-images{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:200px}
     .transform-images.single{grid-template-columns:1fr}
-    .transform-images img{width:100%;height:220px;object-fit:cover;object-position:center top;background:var(--bg2);display:block}
+    .transform-images img{width:100%;height:220px;object-fit:cover;object-position:center top;background:var(--bg2);display:block;cursor:pointer;transition:opacity .2s}
+    .transform-images img:hover{opacity:.92}
     .transform-images.single img{height:260px}
     .transform-info{padding:18px 20px}
     .transform-name{font-weight:600;color:var(--cta);font-size:1.05rem;margin-bottom:4px}
     .transform-caption{color:var(--muted);font-size:.9rem}
     .transform-empty{text-align:center;padding:60px 20px;color:var(--muted);font-size:1.1rem}
     .transform-empty p{margin-bottom:12px}
+
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;cursor:pointer}
+    .lightbox.open{display:flex}
+    .lightbox img{max-width:100%;max-height:100vh;width:auto;height:auto;object-fit:contain;pointer-events:none;border-radius:8px}
+    .lightbox-close{position:fixed;top:20px;right:20px;width:48px;height:48px;border:none;background:rgba(255,255,255,.15);color:var(--text);font-size:28px;line-height:1;cursor:pointer;border-radius:50%;z-index:2001;transition:background .2s}
+    .lightbox-close:hover{background:rgba(255,255,255,.25)}
 
     footer{background:#050505;text-align:center;padding:40px 10%;color:var(--muted);margin-top:60px}
     footer .social{display:flex;justify-content:center;gap:16px;margin-bottom:20px}
@@ -131,6 +138,11 @@
   </div>
 </main>
 
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <img src="" alt="Full size" id="lightboxImg">
+  <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+</div>
+
 <footer>
   <div class="social">
     <a href="https://www.instagram.com/flexthefitnesshouse?igsh=cWFjdWpjZXEzOGF6" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
@@ -173,6 +185,27 @@
     if (list.length) {
       emptyEl.style.display = 'none';
       grid.innerHTML = list.map(card).filter(Boolean).join('');
+      var lightbox = document.getElementById('lightbox');
+      var lightboxImg = document.getElementById('lightboxImg');
+      var lightboxClose = document.getElementById('lightboxClose');
+      function openLightbox(src){
+        if (!src) return;
+        lightboxImg.src = src;
+        lightbox.classList.add('open');
+        lightbox.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeLightbox(){
+        lightbox.classList.remove('open');
+        lightbox.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+      lightbox.addEventListener('click', function(e){ if (e.target === lightbox) closeLightbox(); });
+      if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+      document.addEventListener('keydown', function(e){ if (e.key === 'Escape') closeLightbox(); });
+      grid.querySelectorAll('.transform-images img').forEach(function(img){
+        img.addEventListener('click', function(e){ e.preventDefault(); openLightbox(this.src || this.getAttribute('src')); });
+      });
     }
   }).catch(function(){});
 })();
