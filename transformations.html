@@ -82,7 +82,7 @@
     .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;cursor:pointer}
     .lightbox.open{display:flex}
     .lightbox img{max-width:100%;max-height:100vh;width:auto;height:auto;object-fit:contain;pointer-events:none;border-radius:8px}
-    .lightbox-close{position:fixed;top:20px;right:20px;width:48px;height:48px;border:none;background:rgba(255,255,255,.15);color:var(--text);font-size:28px;line-height:1;cursor:pointer;border-radius:50%;z-index:2001;transition:background .2s}
+    .lightbox-close{position:fixed;top:max(20px,env(safe-area-inset-top));right:max(20px,env(safe-area-inset-right));width:48px;height:48px;border:none;background:rgba(255,255,255,.15);color:var(--text);font-size:28px;line-height:1;cursor:pointer;border-radius:50%;z-index:2001;transition:background .2s}
     .lightbox-close:hover{background:rgba(255,255,255,.25)}
 
     footer{background:#050505;text-align:center;padding:40px 10%;color:var(--muted);margin-top:60px}
@@ -196,9 +196,11 @@
         document.body.style.overflow = 'hidden';
       }
       function closeLightbox(){
+        if (!lightbox.classList.contains('open')) return;
         lightbox.classList.remove('open');
         lightbox.setAttribute('aria-hidden', 'true');
         document.body.style.overflow = '';
+        lightboxImg.src = '';
       }
       lightbox.addEventListener('click', function(e){ if (e.target === lightbox) closeLightbox(); });
       if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);

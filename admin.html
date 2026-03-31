@@ -318,7 +318,7 @@
     var ADMIN_PASS = 'flex2024';
     var PASS_KEY = 'flexAdminPass';
     var data = { pricing: [], trainers: [], reviews: [], transformations: [] };
-    var DEFAULT_DATA = { pricing: [{name:"3 Months",price:"₹6,000",originalPrice:null,tagline:"Unlimited access"},{name:"6 Months",price:"₹10,000",originalPrice:null,tagline:"Best for consistency"},{name:"1 Year",price:"₹14,000",originalPrice:"₹16,000",tagline:"Maximum savings"}], trainers: [], reviews: [], transformations: [] };
+    var DEFAULT_DATA = { pricing: [{name:"3 Months",price:"₹6,000",originalPrice:null,tagline:"Unlimited access"},{name:"6 Months",price:"₹10,000",originalPrice:null,tagline:"Best for consistency"},{name:"1 Year",price:"₹14,000",originalPrice:"₹11,000",tagline:"Maximum savings"}], trainers: [], reviews: [], transformations: [] };
     function getStoredPass(){ try { return localStorage.getItem(PASS_KEY) || ADMIN_PASS; } catch(e){ return ADMIN_PASS; } }
     function setStoredPass(p){ try { localStorage.setItem(PASS_KEY, p); } catch(e){} }
     function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
